@@ -82,7 +82,7 @@ The output is a per-case matrix with failures and variance, not a score.
 
 The tool's own report is recorded but never trusted.
 
-- **Gauntlet**, an oracle app (extending Labyrinth's approach in `testapp/`). Every scenario screen
+- **Gauntlet**, an oracle app (extending the approach of Labyrinth, an earlier test app). Every scenario screen
   appends what the app *actually received* to `Documents/events.jsonl`: each touch point and the
   view it hit, each text change, each control activation, alert decisions, navigation events,
   with timestamps. The harness reads it host-side via `simctl get_app_container`. This is how
