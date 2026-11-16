@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------
 // Device configuration: a discriminated union, never a stringly-typed
-// capability blob (learning from Appium's leaks).
+// capability blob.
 // Plain types — no zod in the SDK public API.
 // ---------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ export type AndroidDeviceConfig = CommonDeviceConfig & {
 
 /**
  * Device configuration: a discriminated union on `platform`, never a
- * stringly-typed capability blob (learning from Appium's leaks).
+ * stringly-typed capability blob.
  * Plain types — no zod in the SDK public API.
  */
 export type DeviceConfig = IosDeviceConfig | AndroidDeviceConfig;

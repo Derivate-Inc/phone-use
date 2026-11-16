@@ -10,8 +10,8 @@ import { soleBootedSimulator } from '@phone-use/sdk';
 // device-claim.ts only sees its own process. Two agents (two CLI loops, two
 // MCP servers, or one of each) on one simulator used to interleave silently:
 // each call was truthful, yet each agent's app state changed under it
-// (eval Tier 2, case I2; mobile-mcp #534, agent-device #1659). Another session
-// could also uninstall the app from under an agent (I5, agent-device #3345).
+// (eval Tier 2, case I2). Another session could also uninstall the app from
+// under an agent (case I5).
 //
 // A lease is a file per device naming the session that last used it. Another
 // session is refused (DEVICE_IN_USE) while the holder is alive and was active

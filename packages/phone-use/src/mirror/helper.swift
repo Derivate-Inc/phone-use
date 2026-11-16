@@ -126,8 +126,7 @@ func focusMirror() {
 /// prove it works on mirrored iOS pixels. SkyLight's SLPSPostEventRecordTo posts
 /// a synthesized event record straight to the process+window, landing a
 /// positioned tap while the frontmost app never changes. The 0xf8 record layout
-/// is yabai's window_manager_make_key_window. Approach ported from
-/// ShawnPana/phone-harness (MIT).
+/// is yabai's window_manager_make_key_window. See THIRD_PARTY_NOTICES.md.
 enum Sky {
     typealias GetPSN = @convention(c) (pid_t, UnsafeMutableRawPointer) -> Int32
     typealias SetFront = @convention(c) (UnsafeMutableRawPointer, UInt32, UInt32) -> Int32
@@ -303,7 +302,7 @@ func drag(_ win: MirrorWindow, _ x1: Double, _ y1: Double, _ x2: Double, _ y2: D
 /// BG: wheel events never reach a background window (0% movement, measured), so
 /// scroll is a fast touch-flick instead — enough release velocity to carry the
 /// iOS list. dy > 0 reveals content below (finger flicks up). Sign matches the
-/// wheel path; confirm direction on device. [ShawnPana/phone-harness]
+/// wheel path; confirm direction on device.
 func scroll(_ win: MirrorWindow, _ dx: Int, _ dy: Int, _ x: Double, _ y: Double) {
     prepare()
     if BG {
@@ -390,7 +389,6 @@ func typeText(_ text: String) {
         // iPhone Mirroring forwards raw HID keycodes to iOS and DROPS the
         // modifier flag mask, so shift must be a physically held key, not a
         // flag on the event — otherwise capitals silently type lowercase.
-        // [ShawnPana/phone-harness]
         if needsShift { keyEdge(SHIFT_KEY, true) }
         keyEdge(code, true)
         usleep(18_000)

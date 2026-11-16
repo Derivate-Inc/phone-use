@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { REGISTRY } from '../src/registry.ts';
 
-// The task scratchpad (minitap port): a keyed KV store carried in-process so
+// The task scratchpad: a keyed KV store carried in-process so
 // the model can move data across apps without trusting its own recall. Risk
 // 'read' — it never touches the device, so no confirmation ceremony.
 

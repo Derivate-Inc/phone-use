@@ -12,7 +12,7 @@ const vizNodes = (nodes: Iterable<MapNode>): { sig: string; title: string; depth
 export type MapNode = { sig: string; title: string; app: string; labels: string[]; depth: number };
 // `doc` is a human/agent-readable note on what tapping this label DOES —
 // "opens <screen>" for a navigation, or an in-place effect for a toggle/button.
-// Pure annotation (AppAgent-style element docs); never consulted for routing,
+// Pure annotation (per-element docs); never consulted for routing,
 // so it can never mislead findPath/goto — it only enriches planning context.
 export type MapEdge = { from: string; label: string; to: string; doc?: string | undefined };
 export type AppMap = {
