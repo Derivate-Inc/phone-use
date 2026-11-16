@@ -1111,14 +1111,18 @@ export class DeviceCore {
   }
 
   /**
-   * Press the keyboard's return/go key. Submits a search bar that acts on
-   * Return (Safari's address bar, web forms) rather than filtering results as
-   * you type.
+   * Press one keyboard key: Return, Tab, Backspace, Space or Escape. For what
+   * typed text cannot express. A backend rejects a key it cannot press.
    */
   async pressKey(key: Key): Promise<void> {
     await this.backend.pressKey(key);
   }
 
+  /**
+   * Press the keyboard's return/go key. Submits a search bar that acts on
+   * Return (Safari's address bar, web forms) rather than filtering results as
+   * you type.
+   */
   async pressReturn(): Promise<void> {
     await this.backend.pressKey('return');
   }
