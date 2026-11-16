@@ -47,7 +47,7 @@ export interface Adapter {
   observe(): Promise<Observation>;
   /** Read all visible text the documented way (an agent checking what a screen says). */
   readScreen(): Promise<{ claim: Claim; text: string }>;
-  /** Untimed, unscored: what an agent does when it starts on a freshly launched app (agent-device: open). */
+  /** Untimed, unscored: what an agent does when it starts on a freshly launched app. */
   afterAppLaunch?(): Promise<void>;
   tapRef(el: Element): Promise<Claim>;
   tapLabel(label: string): Promise<Claim>;

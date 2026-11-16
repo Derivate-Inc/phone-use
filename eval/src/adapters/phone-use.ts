@@ -87,8 +87,8 @@ export function createPhoneUseAdapter(
   opts: { mapDir?: string; leaseDir?: string } = {},
 ): Adapter {
   const env: Record<string, string | undefined> = { ...process.env, NO_COLOR: '1' };
-  // Each adapter instance is one agent: its own session name (agent-device's adapter
-  // likewise uses its own --session), device leases kept in the run directory.
+  // Each adapter instance is one agent: its own session name, device leases kept in the run
+  // directory.
   env.PHONE_USE_SESSION = `eval-${randomInt(1e9)}`;
   if (opts.leaseDir) env.PHONE_USE_LEASE_DIR = opts.leaseDir;
   // The real environment outranks config files (settings.ts), so an explicit value here also keeps
