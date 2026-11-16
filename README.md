@@ -1,6 +1,89 @@
 # Phone Use
 
-**Computer use, for phones.** A runtime that lets AI agents operate an iPhone — fast, verifiable, and reliable — plus a novel capability no phone-use tool has had before: an agent that **autonomously maps an app into a reusable graph** and then navigates it deterministically!
+**Give your agent a phone.** A free, open-source CLI for the iOS Simulator and Android.
+
+[![Phone Use: give your agent a phone](apps/landing/public/og.png)](https://phoneuse.dev)
+
+[Website](https://phoneuse.dev) · [Docs](https://phoneuse.dev/docs) · [npm](https://www.npmjs.com/package/phone-use) · [Cloud waitlist](https://phoneuse.dev/waitlist)
+
+Phone Use lets a coding agent see and operate a phone. It reads the screen as named elements, taps and types by label, and reports after every action whether the screen changed. It runs on your own machine with no account, as a CLI, an MCP server and a TypeScript SDK.
+
+It also **maps an app into a reusable graph** as it explores, then navigates that map deterministically, with zero model calls.
+
+## Quick start
+
+Phone Use is free on your own machine and needs no account. With nothing else
+set up, every verb drives the iOS Simulator on your Mac:
+
+```bash
+curl -fsSL https://phoneuse.dev/install | bash
+
+open -a Simulator         # macOS + Xcode; give it a few seconds to boot
+phone-use observe
+phone-use open "Weather"
+```
+
+Give it to your agent:
+
+```bash
+npx skills add Derivate-Inc/phone-use-skills                       # teach any skills-compatible agent the CLI
+claude mcp add --scope project phone-use -- npx -y phone-use mcp   # or register the MCP server
+```
+
+The same verbs drive four kinds of phone:
+
+```bash
+                          # nothing at all → the local iOS Simulator
+phone-use connect android # an Android device or emulator over adb (macOS, Linux)
+phone-use connect         # the real iPhone on your desk (macOS + iPhone Mirroring)
+phone-use create ios      # a cloud iPhone: waitlist, https://phoneuse.dev/waitlist
+```
+
+**Cloud phones are on a waitlist.** They run on our hardware and there are only
+a few. `phone-use create` from an account that is not approved creates nothing:
+it prints how to continue on the local simulator and where to join the
+[waitlist](https://phoneuse.dev/waitlist), and exits non-zero so a script
+notices. Everything that runs on your own machine sends us nothing.
+
+`connect` is the only way to reach real App Store apps and real accounts —
+simulators cannot run them. See
+[docs/real-iphone.md](packages/phone-use/docs/real-iphone.md) for what that path
+can and cannot do.
+
+Drive a device directly with the SDK (macOS + Xcode):
+
+```ts
+import { ios } from '@phone-use/sdk';
+
+const device = await ios.launch(); // dedicated simulator, deleted on close()
+await device.apps.open('Settings');
+await device.tap('General');
+await device.close();
+```
+
+Or run the full harness from a checkout:
+
+```bash
+bun install
+
+# start the MCP server (also serves the live viewer at localhost:4936)
+bun run mcp
+
+# one-off natural-language task (needs ANTHROPIC_API_KEY)
+bun run task "open Settings and go to Accessibility"
+
+# benchmarks: deterministic layer / full LLM harness (subscription via headless claude)
+bun run bench
+bun run bench:agent
+```
+
+Register with an MCP client (already wired in `.mcp.json` for Claude Code):
+
+```bash
+claude mcp add --scope project phone-use -- bun /path/to/phone-use/packages/phone-use/src/index.ts mcp
+```
+
+## How it is built
 
 The runtime drives the iOS Simulator and real iPhones on macOS, and Android devices or emulators over adb on any OS. The SDK keeps the device transport behind a private backend boundary, and the transport is ours end to end: an XCTest runner for iOS simulators and a small on-device helper for Android, with zero third-party runtime dependencies.
 
@@ -86,72 +169,6 @@ Phone Use benchmark — 6/6 passed, avg ~6.3s/task
 
 `bun run smoke` runs the headline-feature regression guards in one command — the recorder over the real MCP wire, the shared-atlas inherit-and-navigate round-trip, and the full skill lifecycle (record → parameterize → replay → forget) — each asserting live on the simulator.
 
-## Quick start
-
-Phone Use is free on your own machine and needs no account. With nothing else
-set up, every verb drives the iOS Simulator on your Mac:
-
-```bash
-curl -fsSL https://phoneuse.dev/install | bash
-
-open -a Simulator         # macOS + Xcode; give it a few seconds to boot
-phone-use observe
-phone-use open "Weather"
-```
-
-The same verbs drive four kinds of phone:
-
-```bash
-                          # nothing at all → the local iOS Simulator
-phone-use connect android # an Android device or emulator over adb (macOS, Linux)
-phone-use connect         # the real iPhone on your desk (macOS + iPhone Mirroring)
-phone-use create ios      # a cloud iPhone: waitlist, https://phoneuse.dev/waitlist
-```
-
-**Cloud phones are on a waitlist.** They run on our hardware and there are only
-a few. `phone-use create` from an account that is not approved creates nothing:
-it prints how to continue on the local simulator and where to join the
-[waitlist](https://phoneuse.dev/waitlist), and exits non-zero so a script
-notices. Everything that runs on your own machine sends us nothing.
-
-`connect` is the only way to reach real App Store apps and real accounts —
-simulators cannot run them. See
-[docs/real-iphone.md](packages/phone-use/docs/real-iphone.md) for what that path
-can and cannot do.
-
-Drive a device directly with the SDK (macOS + Xcode):
-
-```ts
-import { ios } from '@phone-use/sdk';
-
-const device = await ios.launch(); // dedicated simulator, deleted on close()
-await device.apps.open('Settings');
-await device.tap('General');
-await device.close();
-```
-
-Or run the full harness from a checkout:
-
-```bash
-bun install
-
-# start the MCP server (also serves the live viewer at localhost:4936)
-bun run mcp
-
-# one-off natural-language task (needs ANTHROPIC_API_KEY)
-bun run task "open Settings and go to Accessibility"
-
-# benchmarks: deterministic layer / full LLM harness (subscription via headless claude)
-bun run bench
-bun run bench:agent
-```
-
-Register with an MCP client (already wired in `.mcp.json` for Claude Code):
-
-```bash
-claude mcp add --scope project phone-use -- bun /path/to/phone-use/packages/phone-use/src/index.ts mcp
-```
-
 ## Docs
 
 Product documentation lives with the site under
@@ -175,4 +192,8 @@ Every layer — driver, cursor, live viewer, map building, deterministic `goto`,
 
 ## Status
 
-Connecting a **physical iPhone** (Developer Mode + code signing) is the remaining step to run all of this against a real device — the code path is identical.
+- **iOS Simulator and Android (device or emulator):** the main paths. Every layer above is verified on the iOS Simulator.
+- **Real iPhone:** works through iPhone Mirroring on macOS 15 or newer (`phone-use connect`). It reads the screen with text recognition, so it is rougher than the simulator; [real-iphone.md](packages/phone-use/docs/real-iphone.md) lists what it can and cannot do. Driving a physical iPhone with the XCTest runner (Developer Mode + code signing) is not wired up yet.
+- **Cloud phones:** on a [waitlist](https://phoneuse.dev/waitlist).
+
+Phone Use is free, Apache-2.0, and comes as it is.
