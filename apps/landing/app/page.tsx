@@ -17,7 +17,7 @@ import "./home.css";
 
 
 export const metadata: Metadata = {
-  title: "Phone Use · The mobile runtime for AI agents",
+  title: "Phone Use · Give your agent a phone",
   description:
     "One open-source CLI drives the iOS Simulator on your Mac or an Android device over adb, free and with no account. Your agent reads the screen as named elements and is told whether each action worked. Cloud phones are on a waitlist.",
 };
@@ -56,12 +56,8 @@ export default function Home() {
       <main>
         <section className="home-hero">
           <div className="site-wrap home-hero-copy">
-            <h1>The mobile runtime for AI agents</h1>
-            <p className="site-lede">
-              One CLI drives the iOS Simulator on your Mac or an Android device
-              over adb. It is free and needs no account. Your agent reads the
-              screen as named elements and is told whether each action worked.
-            </p>
+            <h1>Give your agent a phone</h1>
+            <p className="site-lede">A free, open-source CLI for the iOS Simulator and Android.</p>
             <div className="home-actions">
               <CopyCommand />
             </div>

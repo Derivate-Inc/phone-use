@@ -1,6 +1,6 @@
 # Phone Use
 
-> The mobile runtime for AI agents. One open-source CLI (phone-use) drives the
+> Give your agent a phone. One open-source CLI (phone-use) drives the
 > iOS Simulator on a Mac or an Android device or emulator over adb, free and
 > with no account, and gives agents the same verbs on both platforms through
 > the CLI, an MCP server, and a TypeScript SDK (@phone-use/sdk). Agents read
