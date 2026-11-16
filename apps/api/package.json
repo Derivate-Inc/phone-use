@@ -1,6 +1,6 @@
 {
   "name": "@phone-use/cloud",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Self-hosted mobile sandbox control plane, workers, and remote SDK backend",
   "type": "module",
   "license": "Apache-2.0",
