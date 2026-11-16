@@ -1,3 +1,4 @@
+import { KEYS, type Key } from '@phone-use/sdk';
 import { z } from 'zod';
 import { forgetMap, listMaps, loadMap, saveMap, summarize } from './appmap.ts';
 import { resolveApp } from './apps.ts';
@@ -153,6 +154,8 @@ export function targetOf(tool: string, args: Record<string, unknown>): string | 
       return s(args.field) ?? s(args.text);
     case 'toggle':
       return s(args.switch);
+    case 'press':
+      return typeof args.key === 'string' ? `the ${args.key} key` : undefined;
     case 'handle_alert':
       return args.action === 'accept' ? (alertButtonLabels() ?? 'accept alert') : undefined;
     case 'batch': {
@@ -174,8 +177,7 @@ const io = { loadMap, saveMap, listMaps };
 const UDID_RE = /^[0-9A-F]{8}(-[0-9A-F]{4}){3}-[0-9A-F]{12}$/i;
 
 // Task-scoped scratchpad (the `note` tool): a keyed KV store that survives app
-// switches within one session/process — the cross-app data-carry mechanism
-// (ported from minitap's scratchpad, the AndroidWorld-100% harness).
+// switches within one session/process — the cross-app data-carry mechanism.
 // PHONE_USE_NOTES=<path> persists it to disk so ONE-SHOT CLI invocations share
 // the same scratchpad (each `phone-use note …` is a fresh process).
 const defaultTaskNotes = new Map<string, string>();
@@ -197,6 +199,45 @@ async function flushNotes(): Promise<void> {
 }
 
 const after = driver.renderActionResult;
+
+/**
+ * A system alert (a permission prompt, a "trust this computer" sheet) sits
+ * above the app and swallows every tap, while the app's own elements stay in
+ * the tree and still resolve. When an action changed nothing, say so if an
+ * alert is the likely reason, instead of leaving the caller to guess.
+ */
+async function blockingAlertNote(): Promise<string> {
+  try {
+    const alert = await driver.handleAlert('get');
+    if (!alert.present) return '';
+    return ` A system alert is on screen and is probably blocking this: ${alert.description ?? 'alert'}. Clear it with handle_alert (accept or dismiss), then repeat the action.`;
+  } catch {
+    return '';
+  }
+}
+
+/** The labelled things on screen, top to bottom, for list walking. */
+function visibleLabels(): string[] {
+  const vh = driver.viewportHeight();
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const e of cachedElements()) {
+    if (!e.label || !e.rect) continue;
+    if (!LIST_ROLES.has(e.role)) continue;
+    const cy = e.rect.y + e.rect.height / 2;
+    if (cy < 0 || cy > vh) continue;
+    if (seen.has(e.label)) continue;
+    seen.add(e.label);
+    out.push(e.label);
+  }
+  return out;
+}
+
+const LIST_ROLES = new Set(['Cell', 'StaticText', 'Button', 'Link', 'Switch', 'TextView', 'Image']);
+const SCROLL_UNTIL_DEFAULT = 12;
+const SCROLL_COLLECT_DEFAULT = 40;
+const COLLECT_OUTPUT_LIMIT = 400;
+const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /** How typed text appears in a reply: never verbatim when it went into a secure field. */
 function shownText(text: string, secure: boolean): string {
@@ -357,17 +398,36 @@ export const REGISTRY: ToolDef[] = [
     name: 'wait_for',
     risk: 'read',
     description:
-      'Wait until the given text appears on screen (up to timeoutMs, default 5000). Use after actions that trigger loading instead of polling with observe.',
-    schema: { text: z.string(), timeoutMs: z.number().optional() },
-    handler: async ({ text, timeoutMs }) =>
-      after(await driver.waitForText(String(text), timeoutMs as number | undefined), undefined, true),
+      'Wait until the given text appears on screen (up to timeoutMs, default 5000), or with stable=true until the screen stops changing (an animation, a spinner, a page load; default 6000). Use after actions that trigger loading instead of polling with observe.',
+    schema: {
+      text: z.string().optional().describe('Text to wait for'),
+      stable: z.boolean().optional().describe('Wait until two looks in a row show the same screen'),
+      timeoutMs: z.number().optional(),
+    },
+    handler: async ({ text, stable, timeoutMs }) => {
+      if (typeof text === 'string' && text)
+        return after(await driver.waitForText(text, timeoutMs as number | undefined), undefined, true);
+      if (stable !== true) return 'wait_for needs text, or stable=true.';
+      const limit = typeof timeoutMs === 'number' ? timeoutMs : 6000;
+      const started = Date.now();
+      await driver.observe();
+      let last = driver.renderObservation(true);
+      for (;;) {
+        await pause(350);
+        await driver.observe();
+        const now = driver.renderObservation(true);
+        const elapsed = Date.now() - started;
+        if (now === last) return after(`Screen is stable (after ${elapsed}ms).`);
+        if (elapsed >= limit) return after(`✗ Screen was still changing after ${elapsed}ms.`);
+        last = now;
+      }
+    },
   },
   {
     // The consent-gated OTP relay (docs/38): read the one-time verification
     // code that just arrived on the phone, to finish a login the user asked the
-    // agent to complete. The phone-only primitive the agent-auth market
-    // (Notte/WorkOS) rebuilds with a rented SMS number — done on the real
-    // device the code actually lands on.
+    // agent to complete. Others rebuild this with a rented SMS number; here it
+    // is done on the real device the code actually lands on.
     name: 'otp',
     risk: 'read',
     description:
@@ -446,10 +506,19 @@ export const REGISTRY: ToolDef[] = [
           near: near as string | undefined,
         });
         if (r.ok) record({ op: 'tap', label, ...(app === undefined ? {} : { app: String(app) }) });
+        let blocked = r.ok && r.changed === true ? '' : await blockingAlertNote();
+        // Through iPhone Mirroring a Home Screen label is not the tap target
+        // (the icon above it is), so a label tap there does nothing.
+        if (
+          r.ok &&
+          r.changed !== true &&
+          driver.defaultDeviceContext().backend.backendName === 'iphone-mirroring'
+        )
+          blocked += ` If this is an app on the Home Screen, open it with: open "${r.label}".`;
         return after(
           r.ok
-            ? `Tapped "${r.label}"${r.via ? ` (matched via ${r.via})` : ''}${r.changed === true ? '' : r.changed === false ? ' (no change)' : ' (screen change unverified)'}.`
-            : `Tap failed: ${r.reason}`,
+            ? `Tapped "${r.label}"${r.via ? ` (matched via ${r.via})` : ''}${r.changed === true ? '' : r.changed === false ? ' (no change)' : ' (screen change unverified)'}.${blocked}`
+            : `Tap failed: ${r.reason}${blocked}`,
         );
       }
       if (typeof ref === 'string' && ref) {
@@ -457,13 +526,20 @@ export const REGISTRY: ToolDef[] = [
           await driver.longPress(ref);
           return after(`Long-pressed ${ref}.`, undefined, true);
         }
-        return after(`Tapped ${ref}.`, await driver.press(ref));
+        const evidence = await driver.press(ref);
+        return after(
+          `Tapped ${ref}.${evidence.changed === false ? await blockingAlertNote() : ''}`,
+          evidence,
+        );
       }
       if (at && typeof at === 'object') {
         const p = at as { x: number; y: number };
         const evidence =
           inZoom === true ? await driver.pressInZoom(p.x, p.y) : await driver.pressAt(p.x, p.y);
-        return after(`Tapped (${p.x}, ${p.y})${inZoom === true ? ' (zoom space)' : ''}.`, evidence);
+        return after(
+          `Tapped (${p.x}, ${p.y})${inZoom === true ? ' (zoom space)' : ''}.${evidence.changed === false ? await blockingAlertNote() : ''}`,
+          evidence,
+        );
       }
       return 'tap needs label, ref, or at={x,y}.';
     },
@@ -497,7 +573,7 @@ export const REGISTRY: ToolDef[] = [
             ...(app === undefined ? {} : { app: String(app) }),
           });
         // Read-back = ground truth: report what the field ACTUALLY contains
-        // now, so the model verifies instead of assuming (minitap port).
+        // now, so the model verifies instead of assuming.
         const verified =
           r.readback === undefined
             ? ' Could not read the field back — verify before moving on.'
@@ -530,11 +606,78 @@ export const REGISTRY: ToolDef[] = [
   {
     name: 'scroll',
     risk: 'navigate',
-    description: 'Scroll the screen to reveal more content.',
-    schema: { direction: z.enum(['up', 'down', 'left', 'right']) },
-    handler: async ({ direction }) => {
-      await driver.scroll(direction as 'up' | 'down' | 'left' | 'right');
-      return after(`Scrolled ${String(direction)}.`, undefined, true);
+    description:
+      'Scroll the screen to reveal more content; direction is what you want to SEE (down shows what is further down). until="<text>" keeps scrolling until that text is on screen or the list ends. collect=true walks the whole list and returns every labelled row once. Both stop when the screen stops moving, and say which way they ended.',
+    schema: {
+      direction: z.enum(['up', 'down', 'left', 'right']),
+      until: z.string().optional().describe('Keep scrolling until this text is on screen'),
+      collect: z.boolean().optional().describe('Walk the list to its end and return every row label once'),
+      max: z.number().optional().describe('Most scrolls to make (default 12 with until, 40 with collect)'),
+    },
+    handler: async ({ direction, until, collect, max }) => {
+      const dir = direction as 'up' | 'down' | 'left' | 'right';
+      const want = typeof until === 'string' && until ? until : undefined;
+      if (!want && collect !== true) {
+        await driver.scroll(dir);
+        return after(`Scrolled ${dir}.`, undefined, true);
+      }
+      const limit = Math.max(
+        1,
+        Math.floor(typeof max === 'number' ? max : want ? SCROLL_UNTIL_DEFAULT : SCROLL_COLLECT_DEFAULT),
+      );
+      const items: string[] = [];
+      const seen = new Set<string>();
+      const gather = () => {
+        for (const label of visibleLabels()) {
+          if (seen.has(label)) continue;
+          seen.add(label);
+          items.push(label);
+        }
+      };
+      const found = () => {
+        const q = (want ?? '').toLowerCase();
+        return visibleLabels().some((l) => l.toLowerCase().includes(q));
+      };
+      await driver.observe();
+      let scrolls = 0;
+      let ended: 'found' | 'end' | 'max' = 'max';
+      for (;;) {
+        if (collect === true) gather();
+        if (want && found()) {
+          ended = 'found';
+          break;
+        }
+        if (scrolls >= limit) break;
+        const before = driver.renderObservation(true);
+        await driver.scroll(dir);
+        await driver.observe();
+        scrolls += 1;
+        // The list is at its end when a scroll leaves the screen as it was.
+        if (driver.renderObservation(true) === before) {
+          ended = 'end';
+          break;
+        }
+      }
+      const how =
+        ended === 'found'
+          ? `"${want}" is on screen`
+          : ended === 'end'
+            ? 'reached the end of the list'
+            : `stopped after ${scrolls} scrolls (max)`;
+      const list =
+        collect === true
+          ? `\n${items.length} item(s):\n${items
+              .slice(0, COLLECT_OUTPUT_LIMIT)
+              .map((i) => `- ${i}`)
+              .join(
+                '\n',
+              )}${items.length > COLLECT_OUTPUT_LIMIT ? `\n… ${items.length - COLLECT_OUTPUT_LIMIT} more` : ''}`
+          : '';
+      if (want && ended !== 'found')
+        return after(
+          `Scroll stopped: "${want}" was not found; ${how} after ${scrolls} scroll(s) ${dir}.${list}`,
+        );
+      return after(`Scrolled ${dir} ${scrolls} time(s): ${how}.${list}`);
     },
   },
   {
@@ -554,7 +697,7 @@ export const REGISTRY: ToolDef[] = [
     },
     handler: async ({ x, y, dx, dy, durationMs }) => {
       // The simulator's HID pan is a silent no-op for snap-list pickers and
-      // wheels; a local WDA gesture daemon (scratchpad/gesture-daemon.py)
+      // wheels; a local gesture daemon (scratchpad/gesture-daemon.py)
       // performs a real W3C touch drag. Fall back to pan if it's not running.
       let viaDaemon = false;
       // The simulator this call drives, never the environment's: with several
@@ -586,6 +729,21 @@ export const REGISTRY: ToolDef[] = [
         undefined,
         true,
       );
+    },
+  },
+  {
+    name: 'press',
+    risk: 'mutate',
+    description:
+      'Press one keyboard key: return (submit a form or a search), tab (next field), backspace (erase one character), space, escape. Use type for text; this is for the keys text cannot express. A field must have focus. A cloud phone takes return only, for now.',
+    schema: { key: z.enum(KEYS as [Key, ...Key[]]) },
+    handler: async ({ key }) => {
+      try {
+        await driver.pressKey(key as Key);
+      } catch (error) {
+        return `press failed: ${driver.describeError(error)}`;
+      }
+      return after(`Pressed ${String(key)}.`, undefined, true);
     },
   },
   {
@@ -818,7 +976,7 @@ export const REGISTRY: ToolDef[] = [
             z.object({ do: z.literal('verify'), contains: z.string() }),
           ]),
         )
-        .describe('Ordered actions to run until one fails'),
+        .describe(`Ordered actions to run until one fails, as a JSON array. Shapes: ${BATCH_SHAPES}`),
     },
     handler: async ({ actions }) => {
       // Validate every action BEFORE running any: the CLI surface parses
@@ -837,7 +995,7 @@ export const REGISTRY: ToolDef[] = [
       const lines = r.steps.map((s, i) => `${i + 1}. ${s.do}: ${s.ok ? '✓' : '✗'} ${s.detail}`).join('\n');
       const tail = r.ok
         ? 'All actions completed.'
-        : `Stopped at action ${(r.stoppedAt ?? 0) + 1} — screen diverged from plan.`;
+        : `Stopped at action ${(r.stoppedAt ?? 0) + 1} — screen diverged from plan.${await blockingAlertNote()}`;
       return after(`Batch:\n${lines}\n${tail}`, undefined, true);
     },
   },

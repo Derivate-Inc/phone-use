@@ -144,9 +144,9 @@ export function evaluate(ctx: ActionContext): Verdict {
   if (risk === 'mutate' && mode === 'default') {
     // Navigation-adjacent mutations (taps that just move around) are the bulk
     // of phone driving; asking on every one would make default unusable. The
-    // ask tier in default mode applies to typed input and toggles — actions
+    // ask tier in default mode applies to typed input, key presses and toggles — actions
     // that change state rather than position. Plain taps ride as navigate.
-    if (ctx.tool === 'type' || ctx.tool === 'toggle') {
+    if (ctx.tool === 'type' || ctx.tool === 'toggle' || ctx.tool === 'press') {
       const token = newToken();
       pendingTokens.set(token, fp);
       return {
