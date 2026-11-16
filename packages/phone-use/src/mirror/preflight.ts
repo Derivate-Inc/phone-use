@@ -131,6 +131,30 @@ export async function preflightMirror(): Promise<Preflight> {
         }),
   });
 
+  // The window can be open and still not be showing the phone: a lock prompt
+  // or "iPhone in Use" is a macOS view that no tap can clear. Read it, so
+  // `connect` does not report a phone it cannot drive.
+  if (report.mirroringRunning && report.windowFound && report.screenRecording) {
+    try {
+      // Run the helper directly: the backend's own wrapper calls this
+      // preflight when the helper fails, which would loop.
+      const { ensureHelper } = await import('./backend.ts');
+      const { mirrorBlock } = await import('./blocked.ts');
+      const proc = Bun.spawn([await ensureHelper(), 'ocr'], { stdout: 'pipe', stderr: 'pipe' });
+      const out = await new Response(proc.stdout).text();
+      await proc.exited;
+      const boxes = JSON.parse(out || '[]') as { text: string; confidence: number }[];
+      const block = mirrorBlock(boxes.filter((b) => b.confidence >= 0.3).map((b) => b.text));
+      checks.push({
+        name: 'iPhone Mirroring is showing the phone',
+        ok: block === null,
+        ...(block ? { fix: `The window says: "${block.said}". ${block.fix}` } : {}),
+      });
+    } catch {
+      // Reading the window failed for a reason the checks above already name.
+    }
+  }
+
   return { ok: checks.every((c) => c.ok), supported: true, checks };
 }
 

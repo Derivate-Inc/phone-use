@@ -24,6 +24,7 @@ import { dirname, join } from 'node:path';
 import type {
   AlertAction,
   BackendAlertResult,
+  Key,
   OpenAppResult,
   PressTarget,
   ScrollDirection,
@@ -31,6 +32,7 @@ import type {
   SnapshotNode,
 } from '@phone-use/sdk';
 import { BaseDeviceBackend } from '@phone-use/sdk';
+import { describeBlock, type MirrorBlock, mirrorBlock } from './blocked.ts';
 
 const BIN_DIR = join(homedir(), '.phone-use', 'bin');
 const BIN = join(BIN_DIR, 'phone-use-mirror');
@@ -85,6 +87,8 @@ export class MirrorBackend extends BaseDeviceBackend {
   /** Rects from the last snapshot, so a @ref survives until the next observe. */
   private refs = new Map<string, Box>();
   private window: WindowInfo | null = null;
+  /** Set by the last snapshot when the window was showing a lock or in-use screen instead of the phone. */
+  private blocked: MirrorBlock | null = null;
 
   constructor() {
     super('iphone-mirroring', [
@@ -123,6 +127,7 @@ export class MirrorBackend extends BaseDeviceBackend {
         [boxes, win] = await Promise.all([helper<Box[]>('ocr'), this.win()]);
       }
     }
+    this.blocked = mirrorBlock(boxes.filter((b) => b.confidence >= 0.3).map((b) => b.text));
     this.refs.clear();
     const nodes: SnapshotNode[] = [
       {
@@ -159,6 +164,15 @@ export class MirrorBackend extends BaseDeviceBackend {
     return { path: opts.path };
   }
 
+  /**
+   * Refuse input while the window shows a lock or in-use screen. Those are
+   * macOS views: a tap meant for the phone does nothing there, and the only
+   * fix is physical. Judged from the last snapshot, so it costs nothing.
+   */
+  private ready(): void {
+    if (this.blocked) throw new Error(describeBlock(this.blocked));
+  }
+
   /** Centre of a ref's rect, or raw coordinates. */
   private point(target: PressTarget): { x: number; y: number } {
     if ('x' in target) return { x: target.x, y: target.y };
@@ -168,26 +182,31 @@ export class MirrorBackend extends BaseDeviceBackend {
   }
 
   override async press(target: PressTarget): Promise<void> {
+    this.ready();
     const p = this.point(target);
     await helper('tap', String(p.x), String(p.y));
   }
 
   override async longPress(ref: string, durationMs = 800): Promise<void> {
+    this.ready();
     const p = this.point({ ref });
     await helper('longpress', String(p.x), String(p.y), String(durationMs));
   }
 
   override async typeText(text: string): Promise<void> {
+    this.ready();
     await helper('type', text);
   }
 
   override async fill(ref: string, text: string): Promise<void> {
+    this.ready();
     await this.press({ ref });
     await sleep(400);
     await helper('type', text);
   }
 
-  override async pressKey(key: 'return'): Promise<void> {
+  override async pressKey(key: Key): Promise<void> {
+    this.ready();
     await helper('key', key);
   }
 
@@ -200,6 +219,7 @@ export class MirrorBackend extends BaseDeviceBackend {
    * Max — ~50px per event is ignored, 120px scrolls reliably.
    */
   override async scroll(direction: ScrollDirection): Promise<void> {
+    this.ready();
     const win = this.window ?? (await this.win());
     const step = 120;
     const [dx, dy] =
@@ -214,6 +234,7 @@ export class MirrorBackend extends BaseDeviceBackend {
   }
 
   override async pan(x: number, y: number, dx: number, dy: number, durationMs = 350): Promise<void> {
+    this.ready();
     await helper('drag', String(x), String(y), String(x + dx), String(y + dy), String(durationMs));
   }
 
