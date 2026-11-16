@@ -50,10 +50,13 @@ const MINIMAL_ARGS: Record<string, Record<string, unknown>> = {
 };
 
 describe('MCP renderer gate coverage', () => {
-  it('exposes exactly the registry surface (no key → no run_phone_task)', async () => {
+  it('exposes exactly the registry surface and create_cloud_phone (no key → no run_phone_task)', async () => {
     const client = await connectedClient();
     const { tools } = await client.listTools();
-    expect(tools.map((t) => t.name).sort()).toEqual(REGISTRY.map((d) => d.name).sort());
+    // The registry, plus the one tool that is not a device verb (cloud-mcp.ts).
+    expect(tools.map((t) => t.name).sort()).toEqual(
+      [...REGISTRY.map((d) => d.name), 'create_cloud_phone'].sort(),
+    );
   });
 
   it('observe mode blocks every non-read tool through a real MCP round-trip', async () => {

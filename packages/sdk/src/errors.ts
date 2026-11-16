@@ -14,6 +14,7 @@ export type PhoneUseErrorCode =
   | 'UNSUPPORTED_CAPABILITY'
   | 'BACKEND_NOT_FOUND'
   | 'ABORTED'
+  | 'CLOUD_WAITLIST'
   | 'UNKNOWN';
 
 /** Structured, code-specific context attached to a {@link PhoneUseError}. */

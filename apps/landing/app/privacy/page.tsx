@@ -25,6 +25,16 @@ export default function Privacy() {
         service.
       </p>
 
+      <h2>The cloud waitlist</h2>
+      <p>
+        If you join the waitlist we keep the email and the answer you give, and use them only
+        for the waitlist. When <code>phone-use create</code> is refused because cloud phones are
+        on a waitlist, we record that it happened: the time, the kind of phone asked for, which
+        tool asked (the CLI, the MCP server or the SDK), and your account if you were signed in.
+        We do not record an IP address with it. Commands that run on your own machine send us
+        nothing.
+      </p>
+
       <h2>What happens on a phone</h2>
       <p>
         Phones are ephemeral simulated devices. Whatever you or your agent does on a phone —

@@ -90,16 +90,31 @@ Phone Use benchmark — 6/6 passed, avg ~6.3s/task
 
 ## Quick start
 
-Three kinds of phone, one set of verbs:
+Phone Use is free on your own machine and needs no account. With nothing else
+set up, every verb drives the iOS Simulator on your Mac:
 
 ```bash
-phone-use create ios      # a cloud iPhone, ~2s, disposable
-phone-use connect         # the real iPhone on your desk (macOS + iPhone Mirroring)
-                          # nothing at all → a local simulator
+curl -fsSL https://phoneuse.dev/install | bash
 
+open -a Simulator         # macOS + Xcode; give it a few seconds to boot
 phone-use observe
 phone-use open "Weather"
 ```
+
+The same verbs drive four kinds of phone:
+
+```bash
+                          # nothing at all → the local iOS Simulator
+phone-use connect android # an Android device or emulator over adb (macOS, Linux)
+phone-use connect         # the real iPhone on your desk (macOS + iPhone Mirroring)
+phone-use create ios      # a cloud iPhone: waitlist, https://phoneuse.dev/waitlist
+```
+
+**Cloud phones are on a waitlist.** They run on our hardware and there are only
+a few. `phone-use create` from an account that is not approved creates nothing:
+it prints how to continue on the local simulator and where to join the
+[waitlist](https://phoneuse.dev/waitlist), and exits non-zero so a script
+notices. Everything that runs on your own machine sends us nothing.
 
 `connect` is the only way to reach real App Store apps and real accounts —
 simulators cannot run them. See

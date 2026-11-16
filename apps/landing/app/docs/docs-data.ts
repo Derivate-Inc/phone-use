@@ -23,7 +23,7 @@ const pages: DocPage[] = [
   {
     slug: "introduction",
     title: "Phone Use",
-    description: "Cloud phones for AI agents.",
+    description: "Phones for AI agents: free on your own machine, with cloud phones on a waitlist.",
     eyebrow: "Start",
     sections: [
       {
@@ -31,7 +31,7 @@ const pages: DocPage[] = [
         blocks: [
           {
             type: "paragraph",
-            text: "Phone Use gives AI agents phones to work on: an iOS simulator or an Android emulator in the cloud, created with one command. Agents drive them through the CLI, the MCP server or the TypeScript SDK, with the same verbs on both platforms, and every action is checked.",
+            text: "Phone Use gives AI agents phones to work on. On your own machine it is free and needs no account: it drives the iOS Simulator on a Mac, or an Android device or emulator over adb. Agents drive them through the CLI, the MCP server or the TypeScript SDK, with the same verbs on both platforms, and every action is checked. Cloud phones, which run on our hardware, are on a waitlist.",
           },
           {
             type: "table",
@@ -73,7 +73,7 @@ const pages: DocPage[] = [
           },
           {
             type: "callout",
-            text: "Cloud phones run iOS simulators on managed Mac hardware and Android emulators on Linux hosts. With no cloud phone attached, Phone Use drives a local iOS Simulator on macOS with Xcode, or an Android emulator over adb (`phone-use connect android`, or `android.connect()` from the SDK).",
+            text: "With no cloud phone attached, Phone Use drives a local iOS Simulator on macOS with Xcode, or an Android emulator over adb (`phone-use connect android`, or `android.connect()` from the SDK). Cloud phones run iOS simulators on managed Mac hardware and Android emulators on Linux hosts; they are on a waitlist at https://phoneuse.dev/waitlist.",
           },
         ],
       },
@@ -82,7 +82,7 @@ const pages: DocPage[] = [
   {
     slug: "quickstart",
     title: "Quickstart",
-    description: "Create a cloud phone and run your first commands.",
+    description: "Drive the simulator on your own machine and run your first commands. No account needed.",
     eyebrow: "Start",
     sections: [
       {
@@ -92,8 +92,8 @@ const pages: DocPage[] = [
             type: "list",
             items: [
               "macOS or Linux. The install script adds Bun 1.3 or newer, which the CLI runs on, if it is missing.",
-              "A Phone Use account. `phone-use login` signs you in from the browser.",
-              "No Mac. Cloud phones run on our hardware.",
+              "For iOS: a Mac with Xcode and an iOS Simulator runtime. For Android: adb and an emulator or a device, on macOS or Linux.",
+              "No account. Phone Use is free on your own machine.",
             ],
           },
         ],
@@ -110,23 +110,13 @@ const pages: DocPage[] = [
                 code: "curl -fsSL https://phoneuse.dev/install | bash",
               },
               {
-                title: "Sign in",
-                text: "Approve the CLI in your browser. On a machine without one, it prints a code to approve at app.phoneuse.dev/device.",
-                code: "phone-use login",
-              },
-              {
-                title: "Create a phone",
-                text: "An iOS phone starts warm in about two seconds. `phone-use create android` works the same way.",
-                code: "phone-use create ios",
-              },
-              {
-                title: "Attach your shell",
-                text: "Every verb now targets that phone.",
-                code: 'eval "$(phone-use env sbx_YOUR_ID)"',
+                title: "Start a simulator",
+                text: "On a Mac this opens the iOS Simulator; with no other device chosen, every verb drives it. For Android, attach an emulator or a device and run `phone-use connect android` instead.",
+                code: "open -a Simulator",
               },
               {
                 title: "Inspect the screen",
-                text: "Read the frontmost app and its visible elements.",
+                text: "Read the frontmost app and its visible elements. If it says no simulator is booted, the Simulator is still starting: run it again in a few seconds.",
                 code: "phone-use observe",
               },
               {
@@ -153,11 +143,15 @@ const pages: DocPage[] = [
         ],
       },
       {
-        title: "Run locally instead",
+        title: "Cloud phones (waitlist)",
         blocks: [
           {
             type: "paragraph",
-            text: "With no cloud phone attached, the same commands drive a local device: an iOS Simulator on macOS with Xcode (`open -a Simulator`), or an Android emulator over adb (`phone-use connect android`).",
+            text: "Cloud phones run on our hardware, so they need no Mac and no Xcode. There are only a few of them, and they are on a waitlist: join at https://phoneuse.dev/waitlist.",
+          },
+          {
+            type: "paragraph",
+            text: "`phone-use create ios` from an account that is not approved creates nothing. It prints how to continue on the local simulator and where to join the waitlist, and exits with a non-zero code. Once your account is approved, follow the Cloud quickstart.",
           },
         ],
       },
@@ -207,7 +201,7 @@ const pages: DocPage[] = [
         blocks: [
           {
             type: "paragraph",
-            text: "A cloud phone needs no device flag: attach it with `eval \"$(phone-use env <id>)\"`. For a local device, choose one when you start the MCP server.",
+            text: "With nothing chosen, the CLI drives the one booted iOS Simulator. For the MCP server, choose a local device when you start it. A cloud phone (waitlist) needs no device flag: attach it with `eval \"$(phone-use env <id>)\"`.",
           },
           {
             type: "code",
@@ -925,12 +919,17 @@ const pages: DocPage[] = [
   {
     slug: "cloud/overview",
     title: "Phone Use Cloud",
-    description: "Cloud iOS and Android phones your agents can see, drive and verify.",
+    description: "Cloud iOS and Android phones your agents can see, drive and verify. On a waitlist for now.",
     eyebrow: "Cloud",
     sections: [
       {
         title: "What it is",
         blocks: [
+          {
+            type: "callout",
+            tone: "warning",
+            text: "Cloud phones are on a waitlist: join at https://phoneuse.dev/waitlist. Until your account is approved, `phone-use create` creates nothing and tells you how to continue on the local simulator, which is free and needs no account.",
+          },
           {
             type: "paragraph",
             text: "Phone Use Cloud provisions iOS simulators on managed Mac hardware and Android emulators on Linux hosts, and hands them to agents through the same verbs as local devices. An iOS phone starts in about two seconds from a pre-booted image. Phones are billed per minute and close when you are done, or on their own after 15 minutes idle.",
@@ -955,12 +954,17 @@ const pages: DocPage[] = [
   {
     slug: "cloud/quickstart",
     title: "Cloud quickstart",
-    description: "From sign-in to a cloud phone your agent is driving.",
+    description: "From sign-in to a cloud phone your agent is driving, once your account is approved.",
     eyebrow: "Cloud",
     sections: [
       {
         title: "From zero to a driven phone",
         blocks: [
+          {
+            type: "callout",
+            tone: "warning",
+            text: "Cloud phones are on a waitlist: join at https://phoneuse.dev/waitlist. These steps work for an approved account. For everyone else `phone-use create` exits non-zero and prints the local alternative; the Quickstart covers it.",
+          },
           {
             type: "steps",
             items: [
@@ -1083,8 +1087,13 @@ const pages: DocPage[] = [
               ["DELETE /v1/sandboxes/:id", "Close a phone"],
               ["GET /v1/usage", "Billing ledger (per-minute, written at close)"],
               ["POST /v1/keys/rotate", "Mint a fresh API key (invalidates the previous)"],
-              ["GET /v1/me", "Who am I"],
+              ["GET /v1/me", "Who am I, including cloudApproved"],
+              ["POST /v1/waitlist", "Join the waitlist ({ email, useCase? }); needs no key"],
             ],
+          },
+          {
+            type: "paragraph",
+            text: "Cloud phones are on a waitlist. POST /v1/sandboxes from an account that is not approved creates nothing and answers HTTP 403 with `{ \"code\": \"cloud_waitlist\", \"waitlistUrl\": \"…\", \"error\": \"…\" }`. Branch on `code`. The CLI, the MCP server and the SDK turn it into one message that names the local device to use instead.",
           },
           {
             type: "code",

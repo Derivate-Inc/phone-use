@@ -50,7 +50,7 @@ export class CloudStore {
     // Default journal_size_limit is -1: a one-off WAL spike stays on disk forever.
     this.db.exec('PRAGMA journal_size_limit = 67108864');
     this.db.exec('PRAGMA temp_store = MEMORY');
-    for (const migration of ['001_initial.sql', '002_tenants_usage.sql', '003_users.sql', '004_hardening.sql', '005_billing_fairness.sql', '006_device_auth.sql', '007_sandbox_events.sql']) {
+    for (const migration of ['001_initial.sql', '002_tenants_usage.sql', '003_users.sql', '004_hardening.sql', '005_billing_fairness.sql', '006_device_auth.sql', '007_sandbox_events.sql', '008_cloud_waitlist.sql']) {
       const file = fileURLToPath(new URL(`../migrations/${migration}`, import.meta.url));
       try {
         this.db.exec(readFileSync(file, 'utf8'));
@@ -60,6 +60,41 @@ export class CloudStore {
         if (!/duplicate column name/i.test(String(error))) throw error;
       }
     }
+    this.ensureCloudApproval();
+  }
+
+  /**
+   * Cloud waitlist: tenants.cloud_approved_at (NULL = on the waitlist). The
+   * column and its backfill are one transaction, here rather than in a
+   * migration file, because the backfill must run exactly once: every account
+   * that exists when the column first appears is approved, and every account
+   * created afterwards is decided at creation. Migration files re-run on each
+   * start, so an UPDATE in one would approve newcomers on the next restart.
+   */
+  private ensureCloudApproval(): void {
+    this.db
+      .transaction(() => {
+        const columns = this.db.query('PRAGMA table_info(tenants)').all() as Array<{ name: string }>;
+        if (columns.some((column) => column.name === 'cloud_approved_at')) return;
+        this.db.exec('ALTER TABLE tenants ADD COLUMN cloud_approved_at INTEGER');
+        this.db.query('UPDATE tenants SET cloud_approved_at = ?').run(Date.now());
+        // Tenants are allocated lazily on the first /v1 request, not at
+        // signup. Grandfather existing auth users even if they have never
+        // opened the console. Snapshot them in this same one-time transaction
+        // so a later signup cannot acquire approval on restart.
+        if (this.hasUserTable()) {
+          const users = this.db
+            .query(
+              `SELECT u.id, u.name, u.email FROM user u
+               LEFT JOIN tenants t ON t.user_id = u.id WHERE t.id IS NULL`,
+            )
+            .all() as Array<{ id: string; name: string | null; email: string }>;
+          for (const user of users) {
+            this.createTenant(user.name || user.email || 'account', { userId: user.id, cloudApproved: true });
+          }
+        }
+      })
+      .immediate();
   }
 
   close(): void {
@@ -384,17 +419,25 @@ export class CloudStore {
 
   // --- tenants -------------------------------------------------------------
 
+  /**
+   * `cloudApproved` decides whether the tenant may create cloud phones. It
+   * defaults to true for a tenant an operator mints by hand (no userId) and
+   * false for one created by a console signup, which starts on the waitlist.
+   */
   createTenant(
     name: string,
-    opts: { admin?: boolean; userId?: string } = {},
+    opts: { admin?: boolean; userId?: string; cloudApproved?: boolean } = {},
   ): { id: string; name: string; key: string } {
     const id = `ten_${randomUUID().replaceAll('-', '')}`;
     const key = `pk_${randomBytes(24).toString('base64url')}`;
+    const now = Date.now();
+    const approved = opts.cloudApproved ?? opts.userId === undefined;
     this.db
       .query(
-        'INSERT INTO tenants (id, name, key_hash, is_admin, created_at, user_id) VALUES (?, ?, ?, ?, ?, ?)',
+        `INSERT INTO tenants (id, name, key_hash, is_admin, created_at, user_id, cloud_approved_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
       )
-      .run(id, name, hashKey(key), opts.admin ? 1 : 0, Date.now(), opts.userId ?? null);
+      .run(id, name, hashKey(key), opts.admin ? 1 : 0, now, opts.userId ?? null, approved ? now : null);
     return { id, name, key };
   }
 
@@ -407,22 +450,36 @@ export class CloudStore {
   tenantForUser(
     userId: string,
     name: string,
-  ): { id: string; name: string; isAdmin: boolean } | undefined {
+    email?: string | undefined,
+  ): { id: string; name: string; isAdmin: boolean; cloudApproved: boolean } | undefined {
     const read = () =>
-      this.db.query('SELECT id, name, is_admin, disabled_at FROM tenants WHERE user_id = ?').get(userId) as
-        | { id: string; name: string; is_admin: number; disabled_at: number | null }
-        | null;
+      this.db
+        .query('SELECT id, name, is_admin, disabled_at, cloud_approved_at FROM tenants WHERE user_id = ?')
+        .get(userId) as {
+        id: string;
+        name: string;
+        is_admin: number;
+        disabled_at: number | null;
+        cloud_approved_at: number | null;
+      } | null;
     let row = read();
     if (!row) {
       try {
-        this.createTenant(name, { userId });
+        // A new signup starts on the cloud waitlist, unless an operator
+        // already approved this email from the waitlist form.
+        this.createTenant(name, { userId, cloudApproved: this.emailPreApproved(email) });
       } catch {
         /* lost the UNIQUE(user_id) race to a concurrent first login — re-read */
       }
       row = read();
     }
     if (!row || row.disabled_at != null) return undefined;
-    return { id: row.id, name: row.name, isAdmin: row.is_admin === 1 };
+    return {
+      id: row.id,
+      name: row.name,
+      isAdmin: row.is_admin === 1,
+      cloudApproved: row.is_admin === 1 || row.cloud_approved_at != null,
+    };
   }
 
   /** Queued/preparing/running phones owned by a tenant (quota input). */
@@ -477,12 +534,200 @@ export class CloudStore {
   }
 
   /** Resolve a bearer key to a tenant. Undefined when unknown or disabled. */
-  tenantForKey(key: string | undefined): { id: string; name: string; isAdmin: boolean } | undefined {
+  tenantForKey(
+    key: string | undefined,
+  ): { id: string; name: string; isAdmin: boolean; cloudApproved: boolean } | undefined {
     if (!key) return undefined;
     const row = this.db
-      .query('SELECT id, name, is_admin FROM tenants WHERE key_hash = ? AND disabled_at IS NULL')
-      .get(hashKey(key)) as { id: string; name: string; is_admin: number } | null;
-    return row ? { id: row.id, name: row.name, isAdmin: row.is_admin === 1 } : undefined;
+      .query(
+        'SELECT id, name, is_admin, cloud_approved_at FROM tenants WHERE key_hash = ? AND disabled_at IS NULL',
+      )
+      .get(hashKey(key)) as {
+      id: string;
+      name: string;
+      is_admin: number;
+      cloud_approved_at: number | null;
+    } | null;
+    return row
+      ? {
+          id: row.id,
+          name: row.name,
+          isAdmin: row.is_admin === 1,
+          cloudApproved: row.is_admin === 1 || row.cloud_approved_at != null,
+        }
+      : undefined;
+  }
+
+  // --- cloud waitlist ------------------------------------------------------
+
+  /** Whether a tenant may create cloud phones. Unknown tenants may not. */
+  cloudApproved(tenantId: string): boolean {
+    const row = this.db.query('SELECT is_admin, cloud_approved_at FROM tenants WHERE id = ?').get(tenantId) as {
+      is_admin: number;
+      cloud_approved_at: number | null;
+    } | null;
+    return row != null && (row.is_admin === 1 || row.cloud_approved_at != null);
+  }
+
+  /** Approve (or return to the waitlist) one tenant. False when it does not exist. */
+  setCloudApproval(tenantId: string, approved: boolean): boolean {
+    return (
+      this.db
+        .query('UPDATE tenants SET cloud_approved_at = ? WHERE id = ?')
+        .run(approved ? Date.now() : null, tenantId).changes > 0
+    );
+  }
+
+  /**
+   * Approve by email: the account that signed up with it, if there is one, and
+   * the waitlist entry, so an account created with that email later starts
+   * approved. Unapproving reverses both.
+   */
+  setCloudApprovalByEmail(email: string, approved: boolean): { email: string; tenantId: string | null } {
+    const address = normalizeEmail(email);
+    const now = Date.now();
+    this.db
+      .query(
+        `INSERT INTO waitlist_entries (email, use_case, created_at, updated_at, approved_at)
+         VALUES (?, '', ?, ?, ?)
+         ON CONFLICT(email) DO UPDATE SET approved_at = excluded.approved_at, updated_at = excluded.updated_at`,
+      )
+      .run(address, now, now, approved ? now : null);
+    const tenantId = this.tenantIdForEmail(address);
+    if (tenantId) this.setCloudApproval(tenantId, approved);
+    return { email: address, tenantId };
+  }
+
+  /** One refused create. Stores what was asked for and by which account; never an IP address. */
+  recordWaitlistAttempt(input: {
+    account: string;
+    platform?: DevicePlatform | undefined;
+    client: WaitlistClient;
+  }): void {
+    this.db
+      .query('INSERT INTO waitlist_attempts (ts, account, platform, client) VALUES (?, ?, ?, ?)')
+      .run(Date.now(), input.account, input.platform ?? null, input.client);
+  }
+
+  /** Save (or update) a waitlist form entry. The email is the key. */
+  joinWaitlist(email: string, useCase: string): void {
+    const now = Date.now();
+    this.db
+      .query(
+        `INSERT INTO waitlist_entries (email, use_case, created_at, updated_at) VALUES (?, ?, ?, ?)
+         ON CONFLICT(email) DO UPDATE SET
+           -- A second submission without an answer keeps the first answer.
+           use_case = CASE WHEN excluded.use_case = '' THEN use_case ELSE excluded.use_case END,
+           updated_at = excluded.updated_at`,
+      )
+      .run(normalizeEmail(email), useCase, now, now);
+  }
+
+  /** The demand count: refused creates in total and split by who, what and where from. */
+  waitlistSummary(): WaitlistSummary {
+    const count = (sql: string, ...args: Array<string | number>): number =>
+      (this.db.query(sql).get(...args) as { c: number }).c;
+    const group = (column: 'platform' | 'client'): Record<string, number> =>
+      Object.fromEntries(
+        (
+          this.db
+            .query(
+              `SELECT COALESCE(${column}, 'unstated') AS k, COUNT(*) AS c FROM waitlist_attempts GROUP BY k ORDER BY c DESC`,
+            )
+            .all() as Array<{ k: string; c: number }>
+        ).map((row) => [row.k, row.c]),
+      );
+    const now = Date.now();
+    return {
+      attempts: {
+        total: count('SELECT COUNT(*) AS c FROM waitlist_attempts'),
+        anonymous: count("SELECT COUNT(*) AS c FROM waitlist_attempts WHERE account = 'anonymous'"),
+        signedIn: count("SELECT COUNT(*) AS c FROM waitlist_attempts WHERE account != 'anonymous'"),
+        accounts: count(
+          "SELECT COUNT(DISTINCT account) AS c FROM waitlist_attempts WHERE account != 'anonymous'",
+        ),
+        last24h: count('SELECT COUNT(*) AS c FROM waitlist_attempts WHERE ts > ?', now - 24 * 60 * 60_000),
+        last7d: count('SELECT COUNT(*) AS c FROM waitlist_attempts WHERE ts > ?', now - 7 * 24 * 60 * 60_000),
+        byPlatform: group('platform'),
+        byClient: group('client'),
+      },
+      entries: count('SELECT COUNT(*) AS c FROM waitlist_entries'),
+      waitlistedAccounts: count(
+        'SELECT COUNT(*) AS c FROM tenants WHERE cloud_approved_at IS NULL AND is_admin = 0 AND disabled_at IS NULL',
+      ),
+    };
+  }
+
+  /** Waitlist form entries, newest first. */
+  listWaitlistEntries(limit = 500): WaitlistEntry[] {
+    return (
+      this.db
+        .query(
+          'SELECT email, use_case, created_at, approved_at FROM waitlist_entries ORDER BY created_at DESC LIMIT ?',
+        )
+        .all(limit) as Array<{
+        email: string;
+        use_case: string;
+        created_at: number;
+        approved_at: number | null;
+      }>
+    ).map((row) => ({
+      email: row.email,
+      useCase: row.use_case,
+      createdAt: new Date(row.created_at).toISOString(),
+      approved: row.approved_at != null,
+    }));
+  }
+
+  /** Accounts on the waitlist, with how many times each asked for a cloud phone. */
+  listWaitlistedAccounts(limit = 500): WaitlistedAccount[] {
+    const emails = this.hasUserTable();
+    const rows = this.db
+      .query(
+        `SELECT t.id, t.name, t.created_at, ${emails ? 'u.email' : 'NULL'} AS email,
+                (SELECT COUNT(*) FROM waitlist_attempts a WHERE a.account = t.id) AS attempts,
+                (SELECT MAX(ts) FROM waitlist_attempts a WHERE a.account = t.id) AS last_attempt
+         FROM tenants t ${emails ? 'LEFT JOIN user u ON u.id = t.user_id' : ''}
+         WHERE t.cloud_approved_at IS NULL AND t.is_admin = 0 AND t.disabled_at IS NULL
+         ORDER BY attempts DESC, t.created_at DESC LIMIT ?`,
+      )
+      .all(limit) as Array<{
+      id: string;
+      name: string;
+      created_at: number;
+      email: string | null;
+      attempts: number;
+      last_attempt: number | null;
+    }>;
+    return rows.map((row) => ({
+      tenantId: row.id,
+      name: row.name,
+      email: row.email,
+      createdAt: new Date(row.created_at).toISOString(),
+      attempts: row.attempts,
+      lastAttemptAt: row.last_attempt ? new Date(row.last_attempt).toISOString() : null,
+    }));
+  }
+
+  private emailPreApproved(email: string | undefined): boolean {
+    if (!email) return false;
+    const row = this.db
+      .query('SELECT approved_at FROM waitlist_entries WHERE email = ?')
+      .get(normalizeEmail(email)) as { approved_at: number | null } | null;
+    return row?.approved_at != null;
+  }
+
+  /** Better Auth keeps accounts in a `user` table in this same file, when console login is on. */
+  private hasUserTable(): boolean {
+    return this.db.query("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = 'user'").get() != null;
+  }
+
+  private tenantIdForEmail(address: string): string | null {
+    if (!this.hasUserTable()) return null;
+    const row = this.db
+      .query('SELECT t.id FROM tenants t JOIN user u ON u.id = t.user_id WHERE lower(u.email) = ?')
+      .get(address) as { id: string } | null;
+    return row?.id ?? null;
   }
 
   failJob(hostId: string, id: string, message: string): Sandbox | undefined {
@@ -626,6 +871,41 @@ export class CloudStore {
         : {}),
     };
   }
+}
+
+export type WaitlistClient = 'cli' | 'mcp' | 'sdk' | 'web' | 'unknown';
+
+export type WaitlistSummary = {
+  attempts: {
+    total: number;
+    anonymous: number;
+    signedIn: number;
+    /** Distinct signed-in accounts that were refused at least once. */
+    accounts: number;
+    last24h: number;
+    last7d: number;
+    byPlatform: Record<string, number>;
+    byClient: Record<string, number>;
+  };
+  /** Waitlist form entries. */
+  entries: number;
+  /** Accounts that exist but are not approved for cloud phones. */
+  waitlistedAccounts: number;
+};
+
+export type WaitlistEntry = { email: string; useCase: string; createdAt: string; approved: boolean };
+
+export type WaitlistedAccount = {
+  tenantId: string;
+  name: string;
+  email: string | null;
+  createdAt: string;
+  attempts: number;
+  lastAttemptAt: string | null;
+};
+
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
 }
 
 /** API keys are stored only as digests, so a database leak does not leak keys. */

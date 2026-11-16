@@ -359,9 +359,11 @@ switch (command) {
       `  ${dim('Give your agent a phone.')}`,
       '',
       `  ${bold('phone-use')} ${dim('<command> [options]')}`,
-      section('Cloud'),
+      // Cloud phones are on a waitlist; every verb below also drives a local
+      // simulator or device with no account.
+      section('Cloud (waitlist: phoneuse.dev/waitlist)'),
       row('login', '', 'Sign in from the browser; saves your API key'),
-      row('create', 'ios', 'Provision a cloud phone (~2s warm)'),
+      row('create', 'ios', 'Provision a cloud phone (approved accounts)'),
       row('list', '', 'List your phones'),
       row('env', '<id>', 'Print exports that attach this shell to a phone'),
       row('close', '<id>', 'Close a phone'),
@@ -384,7 +386,7 @@ switch (command) {
       row('doctor', '', 'Check Bun, Xcode, simulators, keys'),
       row('doctor', '--mirror', 'Check the real-iPhone path (iPhone Mirroring)'),
       row('connect', '', 'Use the real iPhone on your desk for every verb'),
-      row('disconnect', '', 'Go back to simulators and cloud phones'),
+      row('disconnect', '', 'Go back to the local simulator (or a cloud phone)'),
       row('completion', '<shell>', `Shell completions: ${COMPLETION_SHELLS.join(' | ')}`),
       row('logout', '', 'Remove the saved cloud key'),
       '',

@@ -1,8 +1,10 @@
-import { timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, timingSafeEqual } from 'node:crypto';
 import { Hono } from 'hono';
+import { bodyLimit } from 'hono/body-limit';
 import { cors } from 'hono/cors';
 import { bearer } from './http.ts';
-import { CloudStore } from './store.ts';
+import { windowLimiter } from './rate-limit.ts';
+import { CloudStore, type WaitlistClient } from './store.ts';
 import type { WorkerHost } from './types.ts';
 
 export type ControlPlaneOptions = {
@@ -16,6 +18,14 @@ export type ControlPlaneOptions = {
   consoleOrigin?: string | undefined;
   /** Max queued+preparing+running phones per tenant (admin exempt). Default 5. */
   maxActivePerTenant?: number | undefined;
+  /**
+   * Cloud waitlist: only approved accounts may create phones; everyone else
+   * gets the `cloud_waitlist` answer and is counted. On by default; a
+   * self-hosted control plane turns it off with PHONE_USE_CLOUD_WAITLIST=0.
+   */
+  cloudWaitlist?: boolean | undefined;
+  /** Where the waitlist answer sends people. Default https://phoneuse.dev/waitlist. */
+  waitlistUrl?: string | undefined;
   /** Better Auth instance for web sessions (email+password). Optional: the
    * API works key-only without it. */
   auth?:
@@ -40,30 +50,29 @@ const DEFAULT_TTL_MS = DEMO ? 10 * 60_000 : envMs('PHONE_USE_DEFAULT_TTL_MS', 60
 const DEFAULT_IDLE_MS = DEMO ? 3 * 60_000 : envMs('PHONE_USE_DEFAULT_IDLE_MS', 15 * 60_000);
 const MAX_TTL_MS = DEMO ? 15 * 60_000 : 24 * 60 * 60_000;
 
+/** The stable code clients branch on when a create is refused by the waitlist. */
+export const CLOUD_WAITLIST_CODE = 'cloud_waitlist';
+const DEFAULT_WAITLIST_URL = 'https://phoneuse.dev/waitlist';
+
 type Vars = {
   Variables: {
     tenantId: string | undefined;
     isAdmin: boolean;
+    /** May create cloud phones (always true when the waitlist is off). */
+    cloudApproved: boolean;
+    /** Authenticated by a console session cookie rather than a key. */
+    viaSession: boolean;
     /** undefined = fleet-wide (admin); else pinned to the tenant's rows. */
     scope: string | undefined;
   };
 };
 
-/** Fixed-window in-memory limiter. Per-process is fine: the control plane is a
- * single instance, and these bounds are abuse ceilings, not billing. */
-function windowLimiter(max: number, windowMs: number) {
-  const hits = new Map<string, { count: number; resetAt: number }>();
-  return (key: string): boolean => {
-    const now = Date.now();
-    const entry = hits.get(key);
-    if (!entry || now >= entry.resetAt) {
-      hits.set(key, { count: 1, resetAt: now + windowMs });
-      return true;
-    }
-    entry.count += 1;
-    if (hits.size > 10_000) for (const [k, v] of hits) if (now >= v.resetAt) hits.delete(k);
-    return entry.count <= max;
-  };
+/** JSON must be an object before any route reads its fields. */
+async function jsonObject(request: Request): Promise<Record<string, unknown> | undefined> {
+  const value: unknown = await request.json().catch(() => undefined);
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : undefined;
 }
 
 export function createControlPlane(opts: ControlPlaneOptions): {
@@ -94,6 +103,38 @@ export function createControlPlane(opts: ControlPlaneOptions): {
   const createLimit = windowLimiter(30, 60_000);
   const rotateLimit = windowLimiter(10, 60_000);
 
+  // ── cloud waitlist ───────────────────────────────────────────────────
+  const waitlistOn =
+    opts.cloudWaitlist ?? !['0', 'off', 'false'].includes(process.env.PHONE_USE_CLOUD_WAITLIST ?? '');
+  const waitlistUrl = opts.waitlistUrl ?? process.env.PHONE_USE_WAITLIST_URL ?? DEFAULT_WAITLIST_URL;
+  /** The one answer every refused create gets. `code` is what clients branch on. */
+  const waitlistAnswer = () => ({
+    error:
+      `Cloud phones are on a waitlist. Join it at ${waitlistUrl}. ` +
+      'phone-use still works on your own machine with the local simulator, and needs no account.',
+    code: CLOUD_WAITLIST_CODE,
+    waitlistUrl,
+  });
+  const CLIENTS: readonly WaitlistClient[] = ['cli', 'mcp', 'sdk', 'web'];
+  const clientKind = (value: unknown, fallback: WaitlistClient = 'unknown'): WaitlistClient =>
+    CLIENTS.includes(value as WaitlistClient) ? (value as WaitlistClient) : fallback;
+  // The public waitlist routes are limited per caller. The limiter needs
+  // something to tell callers apart, and the only thing an unauthenticated
+  // request has is its address — so the key is a digest of the address under
+  // a secret that lives only in this process. No address is kept, in memory
+  // or on disk, and the digest means nothing after a restart.
+  const callerSalt = randomBytes(16);
+  const callerKey = (request: Request): string =>
+    createHash('sha256')
+      .update(callerSalt)
+      .update(request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown')
+      .digest('base64url')
+      .slice(0, 16);
+  const attemptLimit = windowLimiter(20, 60_000);
+  const attemptCeiling = windowLimiter(3_000, 60 * 60_000);
+  const joinLimit = windowLimiter(5, 60_000);
+  const joinCeiling = windowLimiter(500, 60 * 60_000);
+
   const app = new Hono<Vars>();
 
   // CORS: only known web-app origins get credentialed cross-origin access.
@@ -103,7 +144,7 @@ export function createControlPlane(opts: ControlPlaneOptions): {
     '*',
     cors({
       origin: (origin) => (allowedOrigins.has(origin) ? origin : null),
-      allowHeaders: ['authorization', 'content-type'],
+      allowHeaders: ['authorization', 'content-type', 'x-phone-use-client'],
       allowMethods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
       maxAge: 86400,
       credentials: true,
@@ -205,6 +246,50 @@ export function createControlPlane(opts: ControlPlaneOptions): {
     return c.json(result, result.status === 'not_found' ? 404 : 200);
   });
 
+  // ── cloud waitlist: the two public routes ────────────────────────────
+  // Both are unauthenticated by design and rate-limited. Neither stores
+  // anything about the caller beyond what the body states.
+  const waitlistBodyLimit = bodyLimit({
+    maxSize: 16 * 1024,
+    onError: (c) => c.json({ error: 'Request too large.' }, 413),
+  });
+  app.use('/v1/waitlist', waitlistBodyLimit);
+  app.use('/v1/waitlist/attempts', waitlistBodyLimit);
+
+  // `create` run while logged out never reaches POST /v1/sandboxes, so the
+  // client reports the attempt here and it is counted as 'anonymous'.
+  app.post('/v1/waitlist/attempts', async (c) => {
+    if (!attemptLimit(callerKey(c.req.raw)) || !attemptCeiling('all')) {
+      return c.json({ error: 'rate limit: too many attempts' }, 429);
+    }
+    const body = await jsonObject(c.req.raw);
+    if (!body) return c.json({ error: 'A JSON object is required.' }, 400);
+    store.recordWaitlistAttempt({
+      account: 'anonymous',
+      platform: body.platform === 'ios' || body.platform === 'android' ? body.platform : undefined,
+      client: clientKind(body.client ?? c.req.header('x-phone-use-client')),
+    });
+    return c.json({ recorded: true, code: CLOUD_WAITLIST_CODE, waitlistUrl }, 202);
+  });
+
+  // The waitlist form: an email and what the person would use cloud phones for.
+  app.post('/v1/waitlist', async (c) => {
+    if (!joinLimit(callerKey(c.req.raw)) || !joinCeiling('all')) {
+      return c.json({ error: 'Too many requests. Try again in a minute.' }, 429);
+    }
+    const body = await jsonObject(c.req.raw);
+    if (!body) return c.json({ error: 'A JSON object is required.' }, 400);
+    const email = typeof body.email === 'string' ? body.email.trim() : '';
+    if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return c.json({ error: 'Enter a valid email address.' }, 400);
+    }
+    const useCase = typeof body.useCase === 'string' ? body.useCase.trim().slice(0, 2_000) : '';
+    store.joinWaitlist(email, useCase);
+    // The same answer whether or not the email was already on the list, so
+    // the form cannot be used to find out who has signed up.
+    return c.json({ ok: true }, 201);
+  });
+
   // Worker endpoints authenticate with the shared worker token only.
   app.use('/v1/worker/*', async (c, next) => {
     if (!safeEqual(bearer(c.req.raw), opts.workerToken)) return c.json({ error: 'unauthorized' }, 401);
@@ -219,6 +304,8 @@ export function createControlPlane(opts: ControlPlaneOptions): {
     const request = c.req.raw;
     let tenantId: string | undefined;
     let isAdmin = false;
+    let cloudApproved = false;
+    let viaSession = false;
     const key = bearer(request);
     if (safeEqual(key, opts.apiToken)) {
       isAdmin = true;
@@ -227,6 +314,7 @@ export function createControlPlane(opts: ControlPlaneOptions): {
       if (!tenant) return c.json({ error: 'unauthorized' }, 401);
       tenantId = tenant.id;
       isAdmin = tenant.isAdmin;
+      cloudApproved = tenant.cloudApproved;
     } else if (opts.auth) {
       // No bearer key: a web session cookie resolves to the user's tenant.
       // Cookie-authenticated MUTATIONS additionally require an allowed
@@ -241,22 +329,34 @@ export function createControlPlane(opts: ControlPlaneOptions): {
         user?: { id: string; name?: string; email?: string; emailVerified?: boolean };
       } | null;
       if (!session?.user) return c.json({ error: 'unauthorized' }, 401);
+      const tenant = store.tenantForUser(
+        session.user.id,
+        session.user.name || session.user.email || 'account',
+        session.user.email,
+      );
+      if (!tenant) return c.json({ error: 'account disabled' }, 403);
       // Unverified emails may look around but not consume resources or mint
       // credentials (codex review #4). Google accounts arrive verified.
       const mutating =
         request.method !== 'GET' && (c.req.path === '/v1/sandboxes' || c.req.path === '/v1/keys/rotate');
-      if (mutating && session.user.emailVerified === false) {
+      // An account on the waitlist that asks for a phone is told about the
+      // waitlist (by the create handler, which creates nothing), not asked
+      // to verify an email that would not get it a phone.
+      const waitlisted = waitlistOn && !tenant.cloudApproved && c.req.path === '/v1/sandboxes';
+      if (mutating && session.user.emailVerified === false && !waitlisted) {
         return c.json({ error: 'verify your email to create phones or keys' }, 403);
       }
-      const tenant = store.tenantForUser(session.user.id, session.user.name || session.user.email || 'account');
-      if (!tenant) return c.json({ error: 'account disabled' }, 403);
       tenantId = tenant.id;
       isAdmin = tenant.isAdmin;
+      cloudApproved = tenant.cloudApproved;
+      viaSession = true;
     } else {
       return c.json({ error: 'unauthorized' }, 401);
     }
     c.set('tenantId', tenantId);
     c.set('isAdmin', isAdmin);
+    c.set('cloudApproved', !waitlistOn || isAdmin || cloudApproved);
+    c.set('viaSession', viaSession);
     // Admins may act fleet-wide; tenants are pinned to their own rows.
     c.set('scope', isAdmin ? undefined : tenantId);
     await next();
@@ -265,9 +365,26 @@ export function createControlPlane(opts: ControlPlaneOptions): {
   app.post('/v1/sandboxes', async (c) => {
     const tenantId = c.get('tenantId');
     if (!createLimit(tenantId ?? 'admin')) return c.json({ error: 'rate limit: too many creates' }, 429);
-    const input = (await c.req.json()) as { platform?: unknown; ttlMs?: unknown; idleTimeoutMs?: unknown };
+    const input = await jsonObject(c.req.raw);
+    if (!input) return c.json({ error: 'A JSON object is required.' }, 400);
     if (input.platform !== 'ios' && input.platform !== 'android') {
       return c.json({ error: 'platform must be ios or android' }, 400);
+    }
+    // Cloud waitlist: an account that is not approved gets the stable
+    // `cloud_waitlist` answer, and the attempt is counted. Nothing is
+    // created, and the answer does not depend on capacity or quota.
+    if (!c.get('cloudApproved')) {
+      try {
+        store.recordWaitlistAttempt({
+          account: tenantId ?? 'anonymous',
+          platform: input.platform,
+          client: clientKind(c.req.header('x-phone-use-client'), c.get('viaSession') ? 'web' : 'unknown'),
+        });
+      } catch (error) {
+        // The count is best-effort; the refusal is not.
+        log('error', 'waitlist_attempt_not_recorded', { message: String(error) });
+      }
+      return c.json(waitlistAnswer(), 403);
     }
     const ttlMs = numberInRange(input.ttlMs, DEFAULT_TTL_MS, 60_000, MAX_TTL_MS);
     const idleTimeoutMs =
@@ -332,6 +449,9 @@ export function createControlPlane(opts: ControlPlaneOptions): {
       name: tenantId ? (store.tenantName(tenantId) ?? null) : null,
       isAdmin: c.get('isAdmin'),
       keyCreatedAt: tenantId ? store.keyCreatedAt(tenantId) : null,
+      // False means cloud phones are on a waitlist for this account.
+      cloudApproved: c.get('cloudApproved'),
+      ...(c.get('cloudApproved') ? {} : { waitlistUrl }),
     });
   });
 
@@ -339,6 +459,41 @@ export function createControlPlane(opts: ControlPlaneOptions): {
   app.get('/v1/admin/hosts', (c) => {
     if (!c.get('isAdmin')) return c.json({ error: 'admin token required' }, 403);
     return c.json({ hosts: store.listHosts() });
+  });
+
+  // Cloud waitlist for operators: the demand count, who is waiting, and the
+  // form entries. scripts/cloud-waitlist.ts prints this.
+  app.get('/v1/admin/waitlist', (c) => {
+    if (!c.get('isAdmin')) return c.json({ error: 'admin token required' }, 403);
+    return c.json({
+      enabled: waitlistOn,
+      ...store.waitlistSummary(),
+      accounts: store.listWaitlistedAccounts(),
+      formEntries: store.listWaitlistEntries(),
+    });
+  });
+
+  // Approve an account for cloud phones (or put it back on the waitlist), by
+  // tenant id or by email. Approving an email that has no account yet means
+  // the account starts approved when it signs up.
+  app.post('/v1/admin/cloud-approval', async (c) => {
+    if (!c.get('isAdmin')) return c.json({ error: 'admin token required' }, 403);
+    const body = await jsonObject(c.req.raw);
+    if (!body) return c.json({ error: 'A JSON object is required.' }, 400);
+    if (body.approved !== undefined && typeof body.approved !== 'boolean') {
+      return c.json({ error: 'approved must be a boolean' }, 400);
+    }
+    const approved = body.approved !== false;
+    if (typeof body.tenantId === 'string' && body.tenantId) {
+      return store.setCloudApproval(body.tenantId, approved)
+        ? c.json({ ok: true, approved, tenantId: body.tenantId })
+        : c.json({ error: 'tenant not found' }, 404);
+    }
+    if (typeof body.email === 'string' && body.email.includes('@')) {
+      const result = store.setCloudApprovalByEmail(body.email, approved);
+      return c.json({ ok: true, approved, ...result, accountExists: result.tenantId !== null });
+    }
+    return c.json({ error: 'tenantId or email is required' }, 400);
   });
 
   // Rotate the caller's API key — returned once, stored hashed. Web-facing.
@@ -352,9 +507,10 @@ export function createControlPlane(opts: ControlPlaneOptions): {
   // Admin-only: mint a tenant key. Returned once and never stored in the clear.
   app.post('/v1/tenants', async (c) => {
     if (!c.get('isAdmin')) return c.json({ error: 'admin token required' }, 403);
-    const { name } = (await c.req.json()) as { name?: string };
+    const { name, cloudApproved } = (await c.req.json()) as { name?: string; cloudApproved?: unknown };
     if (!name) return c.json({ error: 'name is required' }, 400);
-    return c.json(store.createTenant(name), 201);
+    // A tenant an operator mints is approved for cloud phones unless told otherwise.
+    return c.json(store.createTenant(name, { cloudApproved: cloudApproved !== false }), 201);
   });
 
   app.get('/v1/sandboxes/:id', (c) => {

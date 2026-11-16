@@ -63,10 +63,18 @@ Infrastructure failures throw `PhoneUseError` subclasses, each with a stable
 | `ActionFailedError` | `ACTION_FAILED` | yes |
 | `UnsupportedCapabilityError` | `UNSUPPORTED_CAPABILITY` | no |
 | `AbortedError` | `ABORTED` | no |
+| `CloudWaitlistError` | `CLOUD_WAITLIST` | no |
 | `PhoneUseError` (base) | `BACKEND_NOT_FOUND` / `UNKNOWN` | no |
 
 No backend/transport error type ever crosses the public API — everything is
 normalized at the boundary by `toPhoneUseError`.
+
+`CloudWaitlistError` is the one error that is not about a device: cloud phones
+are on a waitlist, and it is thrown when one is asked for and not given. Its
+`message` is written for a coding agent, and `localCommand` and `waitlistUrl`
+carry the next step on this machine and the link to tell the user about.
+Local devices (`ios.launch()`, `ios.connect()`, `android.connect()`) need no
+account and never throw it.
 
 ## `%name%` secrets
 

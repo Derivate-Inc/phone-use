@@ -1,5 +1,5 @@
-import { createCloudSandboxBackend } from '@phone-use/sdk';
-import { CloudClient, type Sandbox } from './cloud-client.ts';
+import { CloudWaitlistError, createCloudSandboxBackend } from '@phone-use/sdk';
+import { CloudClient, createCloudPhone, type Sandbox } from './cloud-client.ts';
 
 /**
  * `phone-use checkpoint …` — save/restore the WHOLE device state of the current
@@ -115,11 +115,37 @@ export async function runTrafficCli(args: string[]): Promise<number> {
  * `phone-use create | list | env | close` (and `sandbox …`). Expected failures
  * (not signed in, an HTTP error from the API, a timeout) print one line and
  * exit 1, rather than surfacing as an uncaught error with a stack trace.
+ *
+ * Cloud phones are on a waitlist: `create` with no key, or from an account
+ * that is not approved, prints the waitlist message (written for the coding
+ * agent that usually runs this) and exits 1.
  */
 export async function runSandboxCli(args: string[]): Promise<number> {
   try {
     return await sandboxCli(args);
   } catch (error) {
+    if (error instanceof CloudWaitlistError) {
+      // stderr, like every other failure here: `id=$(phone-use create ios | …)`
+      // must capture nothing. --json callers get the same facts on stdout.
+      if (args.includes('--json')) {
+        console.log(
+          JSON.stringify(
+            {
+              ok: false,
+              code: 'cloud_waitlist',
+              message: error.message,
+              localCommand: error.localCommand,
+              waitlistUrl: error.waitlistUrl,
+            },
+            null,
+            2,
+          ),
+        );
+      } else {
+        console.error(error.message);
+      }
+      return 1;
+    }
     console.error(error instanceof Error ? error.message : String(error));
     return 1;
   }
@@ -127,9 +153,9 @@ export async function runSandboxCli(args: string[]): Promise<number> {
 
 async function sandboxCli(args: string[]): Promise<number> {
   const [command = 'help', ...rest] = args;
-  const client = ['create', 'list', 'get', 'status', 'close', 'rm'].includes(command)
-    ? new CloudClient()
-    : undefined;
+  // `create` is not here: with no key it answers with the waitlist message,
+  // not "not signed in" (createCloudPhone builds its own client).
+  const client = ['list', 'get', 'status', 'close', 'rm'].includes(command) ? new CloudClient() : undefined;
 
   switch (command) {
     case 'create': {
@@ -141,7 +167,8 @@ async function sandboxCli(args: string[]): Promise<number> {
       const ttlMs = durationFlag(rest, '--ttl');
       const idleRaw = flagValue(rest, '--idle');
       const idleTimeoutMs = idleRaw === 'off' ? false : idleRaw ? parseDuration(idleRaw) : undefined;
-      const sandbox = await client!.create({
+      const sandbox = await createCloudPhone({
+        surface: 'cli',
         platform,
         ...(ttlMs === undefined ? {} : { ttlMs }),
         ...(idleTimeoutMs === undefined ? {} : { idleTimeoutMs }),
@@ -218,7 +245,8 @@ async function sandboxCli(args: string[]): Promise<number> {
     default:
       console.log(`phone-use <create|list|env|close>   (also: phone-use sandbox <sub>)
 
-  create ios             provision a phone and wait until ready
+  create <ios|android>   provision a cloud phone and wait until ready
+                         (waitlist: https://phoneuse.dev/waitlist)
   list                   list sandboxes
   status <id>            show one sandbox
   env <id>               print PHONE_USE_SANDBOX_* exports for this sandbox
@@ -235,7 +263,12 @@ Environment:
   PHONE_USE_CLOUD_TOKEN  client API token
 
 Drive a running sandbox (any verb, MCP, or the agent):
-  eval "$(phone-use env <id>)" && phone-use observe`);
+  eval "$(phone-use env <id>)" && phone-use observe
+
+Cloud phones are on a waitlist. With no cloud phone attached, the same verbs
+drive the iOS Simulator on this Mac or an Android device over adb, and need
+no account:
+  phone-use observe`);
       return command === 'help' ? 0 : 1;
   }
 }

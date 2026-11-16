@@ -1,5 +1,6 @@
 import { chmodSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { CLOUD_WAITLIST_URL } from '@phone-use/sdk';
 import { USER_CONFIG_PATH } from './settings.ts';
 
 // `phone-use login` — browser handoff, the same shape as vercel/fly/railway:
@@ -8,6 +9,24 @@ import { USER_CONFIG_PATH } from './settings.ts';
 // and the CLI persists it to ~/.phone-use/config.json for every later command.
 
 const DEFAULT_API = 'https://api.phoneuse.dev';
+
+/** What GET /v1/me says about the signed-in account. */
+type Me = { name?: string; cloudApproved?: boolean; waitlistUrl?: string };
+
+/**
+ * What to try next after signing in. Cloud phones are on a waitlist, so an
+ * account that is not approved is pointed at the local simulator instead of
+ * at a `create` that would be refused.
+ */
+export function nextStepAfterLogin(me: Me): string {
+  if (me.cloudApproved === false) {
+    return [
+      `Cloud phones are on a waitlist for this account: ${me.waitlistUrl ?? CLOUD_WAITLIST_URL}`,
+      'The local simulator needs no account. Try it: phone-use observe',
+    ].join('\n');
+  }
+  return 'Try it: phone-use create ios';
+}
 
 function consoleUrlFor(api: string): string {
   if (api.includes('localhost') || api.includes('127.0.0.1')) return 'http://localhost:3000/cloud';
@@ -44,7 +63,7 @@ export async function runLogin(args: string[]): Promise<number> {
       return 1;
     }
     const me = await fetch(`${api}/v1/me`, { headers: { authorization: `Bearer ${manual}` } })
-      .then((r) => (r.ok ? (r.json() as Promise<{ name?: string }>) : undefined))
+      .then((r) => (r.ok ? (r.json() as Promise<Me>) : undefined))
       .catch(() => undefined);
     if (!me) {
       console.error(`That key did not validate against ${api}.`);
@@ -52,6 +71,7 @@ export async function runLogin(args: string[]): Promise<number> {
     }
     writeConfig({ ...readConfig(), PHONE_USE_CLOUD_URL: api, PHONE_USE_CLOUD_TOKEN: manual });
     console.log(`Signed in as ${me.name ?? 'account'} → ${USER_CONFIG_PATH}`);
+    if (me.cloudApproved === false) console.log(nextStepAfterLogin(me));
     return 0;
   }
   // Headless-safe path (RFC 8628 device flow): no browser to open, no
@@ -151,7 +171,7 @@ export async function runLogin(args: string[]): Promise<number> {
 
   // Prove the key before persisting it.
   const me = await fetch(`${api}/v1/me`, { headers: { authorization: `Bearer ${key}` } })
-    .then((r) => (r.ok ? (r.json() as Promise<{ name?: string }>) : undefined))
+    .then((r) => (r.ok ? (r.json() as Promise<Me>) : undefined))
     .catch(() => undefined);
   if (!me) {
     console.error('The key handed back by the console did not validate — try again.');
@@ -160,7 +180,7 @@ export async function runLogin(args: string[]): Promise<number> {
 
   writeConfig({ ...readConfig(), PHONE_USE_CLOUD_URL: api, PHONE_USE_CLOUD_TOKEN: key });
   console.log(`Signed in as ${me.name ?? 'account'} → ${USER_CONFIG_PATH}`);
-  console.log('Try it: phone-use create ios');
+  console.log(nextStepAfterLogin(me));
   return 0;
 }
 
@@ -212,9 +232,10 @@ async function runDeviceLogin(api: string): Promise<number> {
     if (result.status === 'approved' && result.key) {
       writeConfig({ ...readConfig(), PHONE_USE_CLOUD_URL: api, PHONE_USE_CLOUD_TOKEN: result.key });
       const me = await fetch(`${api}/v1/me`, { headers: { authorization: `Bearer ${result.key}` } })
-        .then((r) => (r.ok ? (r.json() as Promise<{ name?: string }>) : undefined))
+        .then((r) => (r.ok ? (r.json() as Promise<Me>) : undefined))
         .catch(() => undefined);
       console.log(`Signed in as ${me?.name ?? 'account'} → ${USER_CONFIG_PATH}`);
+      if (me?.cloudApproved === false) console.log(nextStepAfterLogin(me));
       return 0;
     }
     if (result.status === 'denied') {

@@ -85,6 +85,16 @@ export {
   stopXctestRunner,
   type XctestBackendOptions,
 } from './backends/xctest.ts';
+export {
+  CLOUD_WAITLIST_CODE,
+  CLOUD_WAITLIST_URL,
+  type CloudWaitlistContext,
+  CloudWaitlistError,
+  type CloudWaitlistLocalStep,
+  type CloudWaitlistSurface,
+  cloudWaitlistLocalStep,
+  cloudWaitlistMessage,
+} from './cloud-waitlist.ts';
 export type { AndroidDeviceConfig, CommonDeviceConfig, DeviceConfig, IosDeviceConfig } from './config.ts';
 export type {
   AlertAction,

@@ -155,14 +155,16 @@ describe('MCP with several phones', () => {
     return { a, b, client: await serve(phones) };
   }
 
-  it('tells the agent which phones it has and adds `phone` to every tool but note', async () => {
+  it('tells the agent which phones it has and adds `phone` to every device tool but note', async () => {
     const { client } = await twoPhones();
     expect(client.getInstructions()).toContain(`- a: iOS simulator ${UDID_A} (default)`);
     expect(client.getInstructions()).toContain(`- b: iOS simulator ${UDID_B}`);
     const { tools } = await client.listTools();
     for (const tool of tools) {
       const props = (tool.inputSchema.properties ?? {}) as Record<string, { enum?: string[] }>;
-      if (tool.name === 'note') expect(props.phone, tool.name).toBeUndefined();
+      // note is shared by every phone; create_cloud_phone acts on none of them.
+      if (tool.name === 'note' || tool.name === 'create_cloud_phone')
+        expect(props.phone, tool.name).toBeUndefined();
       else expect(props.phone?.enum, tool.name).toEqual(['a', 'b']);
     }
   });
