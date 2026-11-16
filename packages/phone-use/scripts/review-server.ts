@@ -8,8 +8,12 @@
 
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
 
-const SP =
-  '/private/tmp/claude-501/-Users-rajmeet-Dev-phone-use/d4682ce3-c8ff-4e56-a31c-4cc8884d1ed9/scratchpad';
+// The directory holding the iOSWorld result files to review.
+const SP = process.env.REVIEW_RESULTS_DIR;
+if (!SP) {
+  console.error('Set REVIEW_RESULTS_DIR to the directory with the iosworld-*-results.jsonl files.');
+  process.exit(1);
+}
 const RESULT_FILES = [
   { label: 'full', path: `${SP}/iosworld-46-results.jsonl` },
   { label: 'raw', path: `${SP}/iosworld-46-raw-results.jsonl` },

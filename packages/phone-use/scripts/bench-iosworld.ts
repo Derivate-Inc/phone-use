@@ -15,9 +15,11 @@
 
 import * as driver from '../src/driver.ts';
 
-const IOSWORLD =
-  process.env.IOSWORLD_DIR ??
-  '/private/tmp/claude-501/-Users-rajmeet-Dev-phone-use/c5ba94cb-6cbd-4b76-9ed4-a0c8b6c4a473/scratchpad/iOSWorld';
+const IOSWORLD = process.env.IOSWORLD_DIR;
+if (!IOSWORLD) {
+  console.error('Set IOSWORLD_DIR to a checkout of the iOSWorld benchmark.');
+  process.exit(1);
+}
 const MODEL = process.argv.includes('--model') ? process.argv[process.argv.indexOf('--model') + 1]! : 'opus';
 // Judge model is separate from the agent model: pinning the agent to an older
 // model for leaderboard comparability shouldn't weaken the grader.

@@ -42,7 +42,7 @@ const ago = (ms: number) => new Date(NOW - ms).toISOString();
 const ahead = (ms: number) => new Date(NOW + ms).toISOString();
 const asset = (name: string) => `/dev/console/asset/${name}`;
 const conn = (id: string) => ({
-  endpoint: `https://62-210-150-70.sslip.io/v1/device/${id}`,
+  endpoint: `https://ios-worker.example.com/v1/device/${id}`,
   token: "pst_5e0c2a91d47b4f8e9c3a6b1d0f7e3f9c",
 });
 
@@ -277,7 +277,7 @@ export function ConsoleFixtures({ state, theme }: { state: FixtureState; theme: 
           onCreate={noop}
           createFailure={createFailure}
           onDismissFailure={noop}
-          who="Rajmeet Chandok"
+          who="Ada Lovelace"
           dark={theme === "dark"}
           onToggleTheme={noop}
           onSignOut={noop}
