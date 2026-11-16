@@ -5,7 +5,7 @@
 export const FAQS = [
   {
     q: "What is Phone Use?",
-    a: "An open-source CLI, MCP server and SDK that gives AI agents phones to work on. One command creates an iOS simulator or an Android emulator in the cloud. Your agent drives it with the same verbs on both, like `observe`, `tap`, `type`, `goto` and `ask`, and each action reports whether the screen changed.",
+    a: "An open-source CLI, MCP server and SDK that lets AI agents work on a phone: the iOS Simulator on your Mac, or an Android device or emulator over adb. It is free and needs no account. Your agent drives it with the same verbs on both, like `observe`, `tap`, `type`, `goto` and `ask`, and each action reports whether the screen changed. Cloud phones, which run on our hardware, are on a waitlist.",
   },
   {
     q: "Which agents can use it?",
@@ -16,32 +16,40 @@ export const FAQS = [
     a: "One command on macOS or Linux: `curl -fsSL https://phoneuse.dev/install | bash`. It installs Bun, which the CLI runs on, if it isn’t there yet. Run `phone-use doctor` to check your setup.",
   },
   {
+    q: "Is it free?",
+    a: "On your own machine, yes. The CLI, MCP server and SDK are open source, and they need no account. Cloud phones run on our hardware and are on a waitlist.",
+  },
+  {
     q: "Do I need a Mac?",
-    a: "Not for cloud phones. They run on our hardware and the CLI reaches them over the network. You only need a Mac with Xcode to run an iOS simulator on your own machine.",
+    a: "For iOS on your own machine, yes: a Mac with Xcode. Android works over adb on macOS and Linux. Cloud phones need no Mac, and they are on a waitlist.",
+  },
+  {
+    q: "How do I get a cloud phone?",
+    a: "Join the waitlist at phoneuse.dev/waitlist and tell us what you would use one for. Until your account is approved, `phone-use create` creates nothing and tells you how to continue on your own machine.",
   },
   {
     q: "How long does a phone last?",
-    a: "One hour by default, up to 24 hours with `--ttl`. A phone closes itself after 15 minutes with no activity; change that with `--idle`, or pass `--idle off`. Close one any time with `phone-use close <id>`.",
+    a: "A cloud phone lasts one hour by default, up to 24 hours with `--ttl`. It closes itself after 15 minutes with no activity; change that with `--idle`, or pass `--idle off`. Close one any time with `phone-use close <id>`.",
   },
   {
     q: "How is it billed?",
-    a: "By the minute, for as long as a phone is running, from create to close. The console shows your usage.",
+    a: "Nothing on your own machine is billed. Cloud phones are metered by the minute, from create to close, and the console shows your usage.",
   },
   {
     q: "Can I watch my agent work?",
-    a: "Yes. `phone-use create` prints a link to the phone in the console. iOS phones stream live video and you can tap along from the browser. Android phones show screenshots for now.",
+    a: "Yes. The MCP server opens a live viewer at `localhost:4936` that shows the phone's screen and where your agent taps. Cloud phones also stream to the console, with live video on iOS.",
   },
   {
     q: "Can I test my own app?",
-    a: "On iOS, yes: `phone-use install ./MyApp.app` uploads a simulator build to the phone. These are simulators and emulators, not physical phones, so App Store apps and accounts that require a real device will not work.",
+    a: "Yes. On your own iOS Simulator, `phone-use sim install ./MyApp.app` installs a simulator build. On a cloud phone, `phone-use install ./MyApp.app` uploads it. These are simulators and emulators, not physical phones, so App Store apps and accounts that require a real device will not work.",
   },
   {
     q: "How are phones secured?",
-    a: "Each phone gets its own endpoint and a session token that dies when the phone closes. Your account API key stays on your machine.",
+    a: "Each cloud phone gets its own endpoint and a session token that dies when the phone closes. Your account API key stays on your machine.",
   },
   {
     q: "Can I run it without the cloud?",
-    a: "Yes. With no cloud phone attached, the CLI drives a local iOS simulator (macOS with Xcode) or an Android emulator over adb.",
+    a: "Yes, and that is the default. With no cloud phone attached, the CLI drives the iOS Simulator on a Mac with Xcode, or an Android device or emulator over adb. No account is needed.",
   },
 ] as const;
 
