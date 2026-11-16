@@ -100,6 +100,7 @@ export type {
   AlertAction,
   BackendAlertResult,
   Capability,
+  Key,
   OpenAppResult,
   PressTarget,
   Rect,
@@ -108,7 +109,7 @@ export type {
   Snapshot,
   SnapshotNode,
 } from './device.ts';
-export { ALL_CAPABILITIES } from './device.ts';
+export { ALL_CAPABILITIES, KEYS } from './device.ts';
 export {
   AbortedError,
   ActionFailedError,
