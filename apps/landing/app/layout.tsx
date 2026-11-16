@@ -4,18 +4,18 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.phoneuse.dev"),
-  title: "Phone Use · Cloud phones for AI agents",
+  title: "Phone Use · Give your agent a phone",
   description:
-    "One open-source CLI creates an iOS simulator or an Android emulator in the cloud. Your agent reads the screen as named elements and is told whether each action worked.",
+    "One open-source CLI drives the iOS Simulator on your Mac or an Android device over adb, free and with no account. Your agent reads the screen as named elements and is told whether each action worked. Cloud phones are on a waitlist.",
   openGraph: {
     title: "Phone Use",
-    description: "Cloud phones for AI agents.",
+    description: "Give your agent a phone.",
     images: ["/og.png"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Phone Use",
-    description: "Cloud phones for AI agents.",
+    description: "Give your agent a phone.",
     images: ["/og.png"],
   },
 };

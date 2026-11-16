@@ -8,7 +8,8 @@ import "./globals.css";
 export const metadata: Metadata = {
   metadataBase: new URL("https://app.phoneuse.dev"),
   title: "Phone Use Console",
-  description: "Cloud phones your agents can see, drive, and verify.",
+  description:
+    "The console for phone-use cloud phones. Cloud phones are on a waitlist; on your own machine, phone-use is free and needs no account.",
 };
 
 export const viewport: Viewport = {

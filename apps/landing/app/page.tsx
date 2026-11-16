@@ -17,18 +17,18 @@ import "./home.css";
 
 
 export const metadata: Metadata = {
-  title: "Phone Use · Cloud phones for AI agents",
+  title: "Phone Use · Give your agent a phone",
   description:
-    "One open-source CLI creates an iOS simulator or an Android emulator in the cloud. Your agent reads the screen as named elements and is told whether each action worked.",
+    "One open-source CLI drives the iOS Simulator on your Mac or an Android device over adb, free and with no account. Your agent reads the screen as named elements and is told whether each action worked. Cloud phones are on a waitlist.",
 };
 
 
 // The questions a developer asks before trying it; the rest live in the docs
 const QUESTIONS = [
   "Which agents can use it?",
+  "Is it free?",
   "Do I need a Mac?",
-  "How long does a phone last?",
-  "How is it billed?",
+  "How do I get a cloud phone?",
   "Can I test my own app?",
   "Can I watch my agent work?",
 ];
@@ -56,15 +56,14 @@ export default function Home() {
       <main>
         <section className="home-hero">
           <div className="site-wrap home-hero-copy">
-            <h1>Cloud phones for AI agents</h1>
-            <p className="site-lede">
-              One CLI creates an iOS simulator or an Android emulator in the cloud.
-              Your agent reads the screen as named elements and is told whether
-              each action worked.
-            </p>
+            <h1>Give your agent a phone</h1>
+            <p className="site-lede">A free, open-source CLI for the iOS Simulator and Android.</p>
             <div className="home-actions">
               <CopyCommand />
             </div>
+            <p className="home-waitlist">
+              Cloud phones are on a waitlist. <Link href="/waitlist">Join it</Link>
+            </p>
             <p className="home-works">
               <span>Works with</span>
               <Agent logo="anthropic" name="Claude Code" />
@@ -206,8 +205,8 @@ export default function Home() {
                     <h3><KeyRound size={16} strokeWidth={1.75} aria-hidden />Scoped access</h3>
                   </div>
                   <p className="home-statement">
-                    Every phone gets its own token, and the token dies when the phone
-                    closes.
+                    Every cloud phone gets its own token, and the token dies when the
+                    phone closes.
                   </p>
                   <p className="home-statement-note">Your account key never leaves your machine.</p>
                   <ol className="home-life" aria-label="A phone token's life">
@@ -250,10 +249,13 @@ export default function Home() {
 
         <section className="home-final">
           <div className="site-wrap home-final-inner">
-            <h2>Start with a cloud iPhone or Android within seconds</h2>
+            <h2>Start on your own machine in a minute</h2>
             <div className="home-actions">
               <CopyCommand />
             </div>
+            <p className="home-waitlist">
+              Want a cloud phone? <Link href="/waitlist">Join the waitlist</Link>
+            </p>
           </div>
           <PhoneWall />
         </section>

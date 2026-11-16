@@ -26,26 +26,27 @@ import { Stage } from './kit/stage'
 import { Caret, Prompt, Window } from './kit/window'
 import './phone-use-hero.css'
 
-// Phone Use's homepage hero: one CLI, a cloud phone on each platform.
+// Phone Use's homepage hero: one CLI, a phone on each platform, both on the
+// user's own machine.
 //
 // A device pair at the page's content width, cut by the section rule below
 // it. The terminal is where the agent works; the phone straddling its right
-// edge is the cloud phone it is attached to. Beats:
+// edge is the device the CLI is driving. Beats:
 //   1. On the iPhone: `ask "iOS Version"`. The phone walks Settings, General,
 //      About on its own (two touches), the row it read is marked, and the
 //      value prints. Payoff, held.
-//   2. `create android`: the iPhone leaves by the bottom, a Pixel rises in.
-//      The agent attaches and taps "Network & internet"; the screen pushes
-//      and the terminal confirms the tap.
-//   3. `create ios`: the Pixel leaves, a fresh iPhone rises in on Settings,
-//      and the agent attaches to it. That is the opening frame.
+//   2. `connect android`: the iPhone leaves by the bottom, a Pixel rises in.
+//      The agent taps "Network & internet"; the screen pushes and the
+//      terminal confirms the tap.
+//   3. `disconnect`: the Pixel leaves and the iPhone simulator rises back in
+//      on Settings. That is the opening frame.
 //
 // The terminal is a full scrollback anchored at the crop: new lines push old
 // ones up under a soft top edge. Its history is one whole previous loop, so
 // the opening frame is complete, the seam is invisible, and nothing rewinds.
 //
 // Real strings: the commands and their output are the CLI's own (see
-// packages/phone-use); the IDs have the real shape, sbx_ and 32 hex digits.
+// packages/phone-use).
 
 type Part = [string, string?]
 type Line = ({ kind: 'cmd'; text: string } | { kind: 'out'; parts: Part[] }) & { fresh?: boolean }
@@ -62,21 +63,19 @@ type S = {
 const cmd = (text: string): Line => ({ kind: 'cmd', text })
 const out = (...parts: Part[]): Line => ({ kind: 'out', parts })
 
-const IOS_ID = 'sbx_7c2e9f04b1d84a6e9a3c5f2d8e1b7a60'
-const DROID_ID = 'sbx_91ad3e57c0f24b8d9e6a1c7b5f3d2e48'
-
 const ASK = [cmd('phone-use ask "iOS Version"'), out(['→ Settings › General › About', 'dim']), out(['iOS Version = '], ['26.1', 'val'])]
-const CREATE_DROID = [cmd('phone-use create android'), out([DROID_ID, 'id'], ['  android  '], ['running', 'ok'])]
-const ENV_DROID = cmd(`eval "$(phone-use env ${DROID_ID})"`)
+const TO_DROID = [cmd('phone-use connect android'), out(['✓ ', 'ok'], ['Connected to your Android device.'])]
 const TAP = [cmd('phone-use tap "Network & internet"'), out(['✓ ', 'ok'], ['Tapped "Network & internet"'])]
-const CREATE_IOS = [cmd('phone-use create ios'), out([IOS_ID, 'id'], ['  ios  '], ['running', 'ok'])]
-const ENV_IOS = cmd(`eval "$(phone-use env ${IOS_ID})"`)
+const TO_IOS = [cmd('phone-use disconnect'), out(['Disconnected. Verbs target simulators and cloud phones again.', 'dim'])]
 
-// One whole loop, as the scrollback the opening frame inherits
-const CYCLE: Line[] = [...ASK, ...CREATE_DROID, ENV_DROID, ...TAP, ...CREATE_IOS, ENV_IOS]
+// One whole loop
+const CYCLE: Line[] = [...ASK, ...TO_DROID, ...TAP, ...TO_IOS]
+// The scrollback the opening frame inherits: two loops, because one is
+// shorter than the terminal is tall and would leave its top empty
+const HISTORY: Line[] = [...CYCLE, ...CYCLE]
 
-const initial: S = { lines: CYCLE, typed: '', device: 'ios', ios: 0, droid: 0, read: false }
-const POSTER: S = { ...initial, lines: [...CYCLE, ...ASK], ios: 2, read: true }
+const initial: S = { lines: HISTORY, typed: '', device: 'ios', ios: 0, droid: 0, read: false }
+const POSTER: S = { ...initial, lines: [...HISTORY, ...ASK], ios: 2, read: true }
 
 const REST = { wide: { x: 940, y: 420 }, compact: { x: 180, y: 520 } }
 
@@ -113,13 +112,12 @@ async function script(a: Act<S>) {
 
   // 2. The same CLI on Android
   a.mark('android')
-  await run(a, 'phone-use create android')
+  await run(a, 'phone-use connect android')
   await a.wait(520)
-  await a.set((s) => ({ ...push(CREATE_DROID[1])(s), device: 'android' }))
+  await a.set((s) => ({ ...push(TO_DROID[1])(s), device: 'android' }))
   await a.wait(1000)
   // The iPhone is off stage now: put it back on Settings unseen
   await a.snap({ ios: 0, read: false })
-  await run(a, `eval "$(phone-use env ${DROID_ID})"`)
   await a.wait(320)
   await run(a, 'phone-use tap "Network & internet"')
   await a.wait(240)
@@ -129,17 +127,16 @@ async function script(a: Act<S>) {
   await a.set(push(TAP[1]))
   await a.wait(1900)
 
-  // 3. A fresh iPhone: the opening frame
+  // 3. Back to the iPhone simulator: the opening frame
   a.mark('ios')
-  await run(a, 'phone-use create ios')
+  await run(a, 'phone-use disconnect')
   await a.wait(500)
-  await a.set((s) => ({ ...push(CREATE_IOS[1])(s), device: 'ios' }))
+  await a.set((s) => ({ ...push(TO_IOS[1])(s), device: 'ios' }))
   await a.wait(1000)
   await a.snap({ droid: 0 })
-  await run(a, `eval "$(phone-use env ${IOS_ID})"`)
   // The scrollback's visible tail is now the inherited history line for line;
   // trim it to exactly that, unseen, so the next loop starts from initial
-  await a.snap({ lines: CYCLE })
+  await a.snap({ lines: HISTORY })
   // A touch shows only where it lands, so the return to rest is unseen
   await a.move(REST[a.layout])
   await a.wait(600)

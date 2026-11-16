@@ -1,13 +1,15 @@
 # Phone Use
 
-> Cloud phones for AI agents. One open-source CLI (phone-use) creates an iOS
-> simulator or an Android emulator in the cloud and gives agents the same
-> verbs on both platforms through the CLI, an MCP server, and a TypeScript SDK
-> (@phone-use/sdk). Agents read the screen as named elements, and every action
-> reports whether the screen changed. Distinctives: deterministic map-powered
-> navigation (goto/ask/toggle with zero model calls), replayable skills, an
-> un-overridable destructive-action permission floor, a live browser viewer,
-> and portable trace artifacts. No Mac needed for cloud phones.
+> Give your agent a phone. One open-source CLI (phone-use) drives the
+> iOS Simulator on a Mac or an Android device or emulator over adb, free and
+> with no account, and gives agents the same verbs on both platforms through
+> the CLI, an MCP server, and a TypeScript SDK (@phone-use/sdk). Agents read
+> the screen as named elements, and every action reports whether the screen
+> changed. Distinctives: deterministic map-powered navigation (goto/ask/toggle
+> with zero model calls), replayable skills, an un-overridable
+> destructive-action permission floor, a live browser viewer, and portable
+> trace artifacts. Cloud phones, which run on our hardware, are on a waitlist:
+> https://phoneuse.dev/waitlist
 
 ## Install
 
@@ -16,26 +18,28 @@
 - SDK (Node >= 22 or Bun): `npm install @phone-use/sdk`
 - Check your setup: `phone-use doctor`
 
-## Cloud phones
+## On your own machine (free, no account)
 
-- `phone-use login` — sign in from the browser (or approve a code at app.phoneuse.dev/device)
-- `phone-use create ios` / `phone-use create android` — create a cloud phone; iOS starts warm in about 2s
-- `eval "$(phone-use env <id>)"` — attach the shell, so every verb targets that phone
+- iOS: a Mac with Xcode. `open -a Simulator`, then `phone-use observe`. If it says no simulator is booted, the Simulator is still starting: run it again in a few seconds
+- Android: `phone-use connect android` with a device or emulator on adb, then `phone-use observe`
+- With nothing else chosen, every verb drives the one booted simulator. Nothing is sent to phone-use's servers
+
+## Cloud phones (waitlist)
+
+- Cloud phones are on a waitlist: https://phoneuse.dev/waitlist
+- `phone-use create ios` gives a cloud phone only to an approved account. For everyone else it creates nothing, prints how to continue on the local simulator, and exits 1 (`--json` prints `{"code":"cloud_waitlist", ...}`). When you see that message: do not retry, continue on this machine, and tell the user about the waitlist link
+- For an approved account: `phone-use login`, `phone-use create ios` or `phone-use create android`, then `eval "$(phone-use env <id>)"` to attach the shell
 - `phone-use list` / `phone-use close <id>` — list or close phones; 1h default lifetime (up to 24h with --ttl), closes after 15 min idle
-- `phone-use install ./App.app` — install an iOS simulator build on the attached phone
-- Watch any phone in the console at app.phoneuse.dev (live video on iOS, screenshots on Android)
+- `phone-use install ./App.app` — install an iOS simulator build on the attached cloud phone
+- Watch a cloud phone in the console at app.phoneuse.dev (live video on iOS, screenshots on Android)
 
 ## Agents
 
-- Any MCP client: `npx -y phone-use mcp`, with PHONE_USE_SANDBOX_URL and PHONE_USE_SANDBOX_TOKEN set for a cloud phone (the console prints the config)
+- Any MCP client: `npx -y phone-use mcp` drives the local simulator. For a cloud phone, set PHONE_USE_SANDBOX_URL and PHONE_USE_SANDBOX_TOKEN (the console prints the config)
 - Claude Code: `claude mcp add --scope project phone-use -- npx -y phone-use mcp`
 - Built-in agent: `phone-use task "<goal>"` (needs ANTHROPIC_API_KEY)
 - Shell verbs: `phone-use observe | tap | type | scroll | goto | ask | toggle | search | skill | atlas`;
   `--json` prints a machine-readable envelope; exit codes: 0 ok, 1 failed, 2 blocked, 3 confirmation required
-
-## Local devices
-
-- Without a cloud phone attached, the CLI drives a local iOS Simulator (macOS with Xcode) or an Android emulator over adb (`phone-use connect android`)
 
 ## Links
 

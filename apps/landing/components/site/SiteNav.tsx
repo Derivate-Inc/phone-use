@@ -28,9 +28,10 @@ export default function SiteNav({ current, home = "/" }: { current?: Section; ho
           <a href={APP_URL} className="site-nav-signin">
             Sign in
           </a>
-          <a href={APP_URL} className="site-btn site-btn-sm">
+          {/* Getting started needs no account: it is the local quick start. */}
+          <Link href="/docs/quickstart" className="site-btn site-btn-sm">
             Get started
-          </a>
+          </Link>
         </div>
       </div>
     </header>

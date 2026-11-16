@@ -43,6 +43,19 @@
 }
 
 /* "Works with" and four marks, no names: one quiet row */
+/* One quiet line under the install command: where cloud phones stand. */
+.home .home-waitlist {
+  margin-top: 14px;
+  color: var(--site-muted);
+  font-size: 14px;
+}
+.home .home-waitlist a {
+  color: var(--site-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--site-line);
+  text-underline-offset: 3px;
+}
+
 .home .home-works {
   display: flex;
   align-items: center;
