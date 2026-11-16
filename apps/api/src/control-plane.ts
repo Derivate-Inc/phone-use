@@ -337,8 +337,14 @@ export function createControlPlane(opts: ControlPlaneOptions): {
       if (!tenant) return c.json({ error: 'account disabled' }, 403);
       // Unverified emails may look around but not consume resources or mint
       // credentials (codex review #4). Google accounts arrive verified.
+      // Approving a device login mints an API key too, so it is on the list:
+      // without it an unverified account could get a key through
+      // `phone-use login --device` and skip this rule on every later call.
       const mutating =
-        request.method !== 'GET' && (c.req.path === '/v1/sandboxes' || c.req.path === '/v1/keys/rotate');
+        request.method !== 'GET' &&
+        (c.req.path === '/v1/sandboxes' ||
+          c.req.path === '/v1/keys/rotate' ||
+          c.req.path === '/v1/device/approve');
       // An account on the waitlist that asks for a phone is told about the
       // waitlist (by the create handler, which creates nothing), not asked
       // to verify an email that would not get it a phone.

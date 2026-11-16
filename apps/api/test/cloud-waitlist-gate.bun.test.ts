@@ -242,4 +242,47 @@ describe('a brand-new console account', () => {
     expect((await create(p, { cookie })).status).toBe(202);
     p.close();
   });
+
+  test('an unverified account cannot get an API key by approving a device login, even with a pre-approved email', async () => {
+    // Someone signs up with another person's pre-approved address and never verifies it.
+    const seed = new CloudStore(join(dir, 'squatter.sqlite'));
+    seed.setCloudApprovalByEmail('squatter@example.com', true);
+    seed.close();
+    const { store, p, cookie } = await signedUp('squatter');
+    const post = (path: string, body: unknown, headers: Record<string, string> = {}) =>
+      p.fetch(
+        new Request(`http://cp${path}`, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json', ...headers },
+          body: JSON.stringify(body),
+        }),
+      );
+    const started = (await (await post('/v1/device/start', {})).json()) as { deviceCode: string; userCode: string };
+
+    // The device login is how `phone-use login --device` gets its key.
+    const approve = await post('/v1/device/approve', { code: started.userCode }, { cookie });
+    expect(approve.status).toBe(403);
+    expect(((await approve.json()) as { error: string }).error).toContain('verify your email');
+    const polled = (await (await post('/v1/device/poll', { deviceCode: started.deviceCode })).json()) as {
+      status: string;
+      key?: string;
+    };
+    expect(polled.status).toBe('pending');
+    expect(polled.key).toBeUndefined();
+    // The other two ways to a phone or a key are closed to it as well.
+    expect((await post('/v1/keys/rotate', {}, { cookie })).status).toBe(403);
+    expect((await create(p, { cookie })).status).toBe(403);
+    expect(sandboxCount(store)).toBe(0);
+
+    // Once the address is verified, the same approval works and yields a key.
+    store.db.query('UPDATE user SET emailVerified = 1').run();
+    expect((await post('/v1/device/approve', { code: started.userCode }, { cookie })).status).toBe(200);
+    const collected = (await (await post('/v1/device/poll', { deviceCode: started.deviceCode })).json()) as {
+      status: string;
+      key?: string;
+    };
+    expect(collected.status).toBe('approved');
+    expect(collected.key).toStartWith('pk_');
+    p.close();
+  });
 });
