@@ -151,7 +151,7 @@ H.264 video (30fps target), browser decoding, and automatic reconnection.
 
 ## Benchmark
 
-**The device layer has a regression eval** ([`eval/`](eval/README.md)): 30 probes on a test app that records what it actually received, so the tool never grades itself, plus a multi-agent tier. Its headline is the false-success rate (the tool said OK, the app says otherwise). phone-use was tuned against these probes, so its 0% there is a regression bar, not evidence of reliability in general; comparisons with other tools are not yet independent. It measures single device actions, not whether an agent completes real tasks. `bun run bench` below is a smoke test of the high-level verbs.
+**The device layer has a regression eval** ([`eval/`](eval/README.md)): 33 probes on a test app that records what it actually received, so the tool never grades itself, plus a multi-agent tier. Its headline is the false-success rate (the tool said OK, the app says otherwise). phone-use was tuned against these probes, so its 0% there is a regression bar, not evidence of reliability in general. It measures single device actions, not whether an agent completes real tasks. `bun run bench` below is a smoke test of the high-level verbs.
 
 `bun run bench` runs a suite of phone tasks, each a skill that ends in a `verify` text check on the final screen, from a clean state, timed, across the capability classes. Latest simulator run:
 
