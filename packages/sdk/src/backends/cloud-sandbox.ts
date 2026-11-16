@@ -5,6 +5,7 @@ import {
   type AlertAction,
   type BackendAlertResult,
   type Capability,
+  type Key,
   type OpenAppResult,
   type PressTarget,
   type ScrollDirection,
@@ -143,7 +144,10 @@ export class CloudSandboxBackend extends BaseDeviceBackend {
   override typeText(text: string): Promise<void> {
     return this.rpc('typeText', text);
   }
-  override pressKey(key: 'return'): Promise<void> {
+  override pressKey(key: Key): Promise<void> {
+    // Workers that predate the wider key set press Return for every key, so a
+    // cloud phone only takes Return until the workers are redeployed.
+    if (key !== 'return') return Promise.reject(this.unsupported('key'));
     return this.rpc('pressKey', key);
   }
   override scroll(direction: ScrollDirection): Promise<void> {

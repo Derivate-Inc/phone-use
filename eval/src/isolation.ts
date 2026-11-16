@@ -220,8 +220,8 @@ async function caseI2(make: (u: string) => Adapter, sim: string, rounds: number)
     .map((e) => String(e.value))
     .filter((v) => v.includes('i2a-') && v.includes('i2b-'));
   // doc 43: "the second is refused or queued with a clear message; never interleaved". Each call
-  // being truthful is not enough: two agents silently taking turns on one app is the bug
-  // (mobile-mcp #534), so passing needs the tool to tell one of them about the other.
+  // being truthful is not enough: two agents silently taking turns on one app is the bug,
+  // so passing needs the tool to tell one of them about the other.
   const order = [...steps].sort((x, y) => x.t0 - y.t0).map((s) => s.agent);
   const switches = order.slice(1).filter((a, i) => a !== order[i]).length;
   const pass = refusals.length > 0 && j.falseSuccesses.length === 0 && mixed.length === 0;
@@ -408,7 +408,7 @@ async function main() {
   console.log(md);
 }
 
-// Exit explicitly: a tool's detached daemon (agent-device) can inherit our pipes and keep Bun alive.
+// Exit explicitly: a tool's detached daemon can inherit our pipes and keep Bun alive.
 main().then(
   () => process.exit(0),
   (e) => {

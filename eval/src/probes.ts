@@ -37,7 +37,7 @@ export type Probe = {
 
 /** The element an agent would pick for `label`: exact label first, then contains; optional role filter. */
 export function pick(o: Observation, label: string | RegExp, role?: RegExp): Element | undefined {
-  // A tool that names no roles (Maestro's iOS hierarchy has none) is matched on its label alone,
+  // A tool that names no roles is matched on its label alone,
   // as an agent reading it would.
   const ok = (e: Element) => !role || !e.role || role.test(e.role);
   if (label instanceof RegExp) return o.elements.find((e) => ok(e) && label.test(e.label));
@@ -113,7 +113,7 @@ export const PROBES: Probe[] = [
       [
         'A1',
         'Ref from before rows were inserted above the target',
-        'agent-device teardown (Settings General→Siri 3/3); mobile-mcp T1',
+        'our own tests of device tools: rows inserted late moved the target before the tap (Settings, General → Siri)',
       ],
       [
         'A1i',
@@ -150,7 +150,8 @@ export const PROBES: Probe[] = [
     scenario: 'A2',
     title: 'Two controls share a label; tap the toolbar one by ref',
     expect: 'act',
-    evidence: 'mobile-mcp T3 (Dictation alert); agent-device #1239-class ambiguity',
+    evidence:
+      'our own tests of device tools: with duplicate labels the wrong control was reached (a Dictation alert)',
     async run(ctx) {
       const { label } = (await ctx.fixture()) as { label: string };
       const obs = await ctx.tool.observe();
@@ -169,7 +170,7 @@ export const PROBES: Probe[] = [
     scenario: 'A3',
     title: 'Stale ref from the previous screen; another button now sits at its point',
     expect: 'refuse',
-    evidence: 'agent-device #1239, #1076',
+    evidence: 'public issue reports: a stale ref from the previous screen was accepted after navigation',
     async run(ctx) {
       const { firstScreenButton } = (await ctx.fixture()) as { firstScreenButton: string };
       const obs = await ctx.tool.observe();
@@ -195,7 +196,7 @@ export const PROBES: Probe[] = [
     scenario: 'A4',
     title: 'Carousel card whose centre is off-screen',
     expect: 'act',
-    evidence: 'agent-device #332',
+    evidence: 'public issue report: tapping a carousel item that is partly off-screen',
     async run(ctx) {
       const { target } = (await ctx.fixture()) as { target: string };
       const t = nowSec();
@@ -210,7 +211,7 @@ export const PROBES: Probe[] = [
     scenario: 'A5',
     title: 'Button covered by the software keyboard',
     expect: 'either',
-    evidence: 'agent-device #1298; mobile-mcp and Mobilerun T3 ("Lovelacey")',
+    evidence: 'public issue report and our own tests: a tap under the keyboard typed a key ("Lovelacey")',
     readyWhen: (e) => e.kind === 'ready' && e.phase === 'keyboard',
     async run(ctx) {
       const evs = await ctx.events();
@@ -237,7 +238,7 @@ export const PROBES: Probe[] = [
       scenario: 'A6',
       title: `Button ${which === 'Lower' ? 'under a sheet' : 'in the dimmed area behind a sheet'}`,
       expect: 'refuse',
-      evidence: 'MobileBuildMCP teardown T3/T7; doc 42 "occlusion beyond the keyboard"',
+      evidence: 'our own tests of device tools: occlusion beyond the keyboard (sheets, dimmed areas)',
       async run(ctx) {
         await ctx.notify('present');
         if (!(await ctx.waitFor((e) => e.kind === 'sheet' && e.shown === true, 5000)))
@@ -255,7 +256,7 @@ export const PROBES: Probe[] = [
     scenario: 'A7',
     title: 'Landscape: tap a grid cell by ref',
     expect: 'act',
-    evidence: 'agent-device #4091, #1511',
+    evidence: 'public issue reports: in landscape, presses landed a fixed offset away and reported success',
     readyWhen: (e) => e.kind === 'ready' && 'landscape' in e,
     async run(ctx) {
       const ready = (await ctx.events()).find((e) => e.kind === 'ready' && 'landscape' in e);
@@ -294,7 +295,7 @@ export const PROBES: Probe[] = [
     scenario: 'A8',
     title: 'SwiftUI TabView (Liquid Glass tab bar): switch to Profile',
     expect: 'act',
-    evidence: 'agent-device #507, #3514',
+    evidence: 'public issue reports: SwiftUI TabView and Liquid Glass views with null frames',
     async run(ctx) {
       const t = nowSec();
       const { claim, offered } = await observeAndTap(ctx, 'Profile', /button|tab/i);
@@ -311,7 +312,7 @@ export const PROBES: Probe[] = [
     scenario: 'B1',
     title: 'Tap a button that ignores taps for 300–700 ms after it appears',
     expect: 'act',
-    evidence: 'MobileBuildMCP #544',
+    evidence: 'public issue report: a tap reported success without activating the control',
     async run(ctx) {
       const go = await ctx.tool.tapLabel('Go');
       if (!(await ctx.waitFor((e) => e.kind === 'fixture' && 'ignoreMs' in e, 5000)))
@@ -333,7 +334,7 @@ export const PROBES: Probe[] = [
         'Replace text in a field that already has text',
         'Display Name',
         'Grace Hopper',
-        'MobileBuildMCP #543; agent-device #3358',
+        'public issue reports: replacing existing text appended to it instead',
       ],
       [
         'B3',
@@ -341,7 +342,7 @@ export const PROBES: Probe[] = [
         'Field that formats input as you type (phone)',
         'Phone Number',
         '4155550123',
-        'agent-device #2634',
+        'public issue report: a field that reformats what is typed',
       ],
       [
         'B4',
@@ -349,7 +350,7 @@ export const PROBES: Probe[] = [
         'Non-ASCII, emoji and RTL text',
         'Message',
         'Zoë — 東京 🚀 مرحبا',
-        'agent-device #3819; mobile-mcp #78',
+        'public issue reports: non-ASCII text entry',
       ],
       ['B5', 'B5', 'Secure field: set it, never echo it', 'Secret Phrase', 'hunter2-Gauntlet!', 'doc 43 B5'],
     ] as const
@@ -403,7 +404,7 @@ export const PROBES: Probe[] = [
     scenario: 'B7',
     title: 'Dismiss the keyboard without changing the field',
     expect: 'act',
-    evidence: 'agent-device #952; MobileBuildMCP #535',
+    evidence: 'public issue reports: dismissing the keyboard typed text into the focused field',
     readyWhen: (e) => e.kind === 'ready' && e.phase === 'keyboard',
     async run(ctx) {
       const evs0 = await ctx.events();
@@ -456,7 +457,7 @@ export const PROBES: Probe[] = [
     scenario: 'B10',
     title: 'Tap a row far down a long list (the tool scrolls to it)',
     expect: 'act',
-    evidence: 'Mobilerun scroll_until pressed Home; T5',
+    evidence: 'our own tests of device tools: a scroll-until-found verb pressed Home and left the app',
     async run(ctx) {
       const { target } = (await ctx.fixture()) as { target: string };
       const t = nowSec();
@@ -470,7 +471,7 @@ export const PROBES: Probe[] = [
     scenario: 'B10',
     title: 'Tap a row that does not exist: an honest "not found", still in the app',
     expect: 'refuse',
-    evidence: 'Mobilerun scroll_until pressed Home',
+    evidence: 'our own tests of device tools: a scroll-until-found verb pressed Home and left the app',
     async run(ctx) {
       const t = nowSec();
       const claim = await ctx.tool.scrollToAndTap('Row 999 Nowhere');
@@ -483,7 +484,7 @@ export const PROBES: Probe[] = [
     scenario: 'B11',
     title: 'Tap at (5000, 5000)',
     expect: 'refuse',
-    evidence: 'mobile-mcp, ios-simulator-mcp, Mobilerun (doc 42 T9)',
+    evidence: 'our own tests of device tools: taps at coordinates far outside the screen',
     async run(ctx) {
       const t = nowSec();
       const claim = await ctx.tool.tapPoint(5000, 5000);
@@ -501,7 +502,7 @@ export const PROBES: Probe[] = [
     title: 'Read a location permission prompt: message and all buttons',
     expect: 'act',
     reinstall: true,
-    evidence: 'Mobilerun could not see it (doc 42 T6)',
+    evidence: 'our own tests of device tools: a permission prompt the tool could not see',
     async run(ctx) {
       if (!(await ctx.waitFor((e) => e.kind === 'permission_request', 5000)))
         return { invalid: 'no permission request', detail: '' };
@@ -527,7 +528,7 @@ export const PROBES: Probe[] = [
     title: 'Dismiss a location permission prompt: it must decline',
     expect: 'act',
     reinstall: true,
-    evidence: 'agent-device #3627 (the same class of bug on ATT)',
+    evidence: 'public issue report: "dismiss" tapped Allow (the same class of bug on ATT)',
     async run(ctx) {
       if (!(await ctx.waitFor((e) => e.kind === 'permission_request', 5000)))
         return { invalid: 'no permission request', detail: '' };
@@ -549,7 +550,7 @@ export const PROBES: Probe[] = [
     title: 'Dismiss the App Tracking Transparency prompt: it must decline',
     expect: 'act',
     reinstall: true,
-    evidence: 'agent-device #3627',
+    evidence: 'public issue report: "dismiss" on the ATT prompt tapped Allow and printed "dismissed"',
     async run(ctx) {
       const req = await ctx.waitFor((e) => e.kind === 'permission_request', 5000);
       if (!req) return { invalid: 'no tracking request', detail: '' };
@@ -570,7 +571,7 @@ export const PROBES: Probe[] = [
     scenario: 'C7',
     title: 'Web content in a WKWebView: read the heading, tap the link',
     expect: 'act',
-    evidence: 'idb and AXe cannot see web text (doc 42 T4)',
+    evidence: 'our own tests of device tools: accessibility readers that cannot see web text',
     async run(ctx) {
       if (!(await ctx.waitFor((e) => e.kind === 'web_loaded', 8000)))
         return { invalid: 'the page did not load', detail: '' };
@@ -589,7 +590,7 @@ export const PROBES: Probe[] = [
     scenario: 'D2',
     title: 'A screen that never idles: observe and tap in bounded time',
     expect: 'act',
-    evidence: 'Mobilerun 3.5 s waits; phone-use 60 s first-contact wait (doc 43)',
+    evidence: 'fixed waits on screens that never idle; phone-use 60 s first-contact wait (doc 43)',
     async run(ctx) {
       const obs = await ctx.tool.observe();
       const t = nowSec();
@@ -604,7 +605,7 @@ export const PROBES: Probe[] = [
     scenario: 'D3',
     title: 'Observe: hidden, transparent, covered and off-screen controls are not offered',
     expect: 'act',
-    evidence: 'doc 43 D3 (all three competitors)',
+    evidence: 'doc 43 D3',
     async run(ctx) {
       const obs = await ctx.tool.observe();
       // Offered = listed as a target. An element the tool itself marks as blocked
@@ -679,7 +680,7 @@ export const PROBES: Probe[] = [
     scenario: 'E3',
     title: 'Main thread blocked 6–9 s by a tap: bounded replies, then the app is usable',
     expect: 'act',
-    evidence: 'mobile-mcp #358',
+    evidence: 'public issue report: calls stalled 20–30 s or forever and froze the whole server',
     async run(ctx) {
       const freeze = await ctx.tool.tapLabel('Freeze');
       const t = nowSec();

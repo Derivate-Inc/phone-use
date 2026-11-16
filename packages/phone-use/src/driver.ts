@@ -4,6 +4,7 @@
 // constructed default context wired to the local iOS XCTest backend. Laziness
 // matters: importing this module must not construct a backend (key-free smoke
 // tests import the tool surface without a daemon).
+import type { Key } from '@phone-use/sdk';
 import { createCloudSandboxBackend, createDeviceRunnerBackend, createXctestBackend } from '@phone-use/sdk';
 import { createAndroidBackend } from './android/backend.ts';
 import type {
@@ -245,6 +246,10 @@ export function typeText(text: string): Promise<void> {
 }
 
 /** Press the keyboard's return/go key. */
+export function pressKey(key: Key): Promise<void> {
+  return defaultDeviceContext().pressKey(key);
+}
+
 export function pressReturn(): Promise<void> {
   return defaultDeviceContext().pressReturn();
 }

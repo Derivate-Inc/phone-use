@@ -248,6 +248,25 @@ describe('AndroidBackend error mapping', () => {
     await backend.back();
     expect(calls[0]).toEqual({ file: 'adb', args: ['-s', 'emulator-5556', 'shell', 'input keyevent 4'] });
   });
+
+  it('pressKey sends the key event for each key, not Return for all of them', async () => {
+    const calls: Call[] = [];
+    const backend = new AndroidBackend({
+      serial: 'emulator-5556',
+      exec: async (file, args) => {
+        calls.push({ file, args });
+        return { stdout: '', stderr: '' };
+      },
+    });
+    for (const key of ['return', 'tab', 'backspace', 'space', 'escape'] as const) await backend.pressKey(key);
+    expect(calls.map((c) => c.args.at(-1))).toEqual([
+      'input keyevent 66',
+      'input keyevent 61',
+      'input keyevent 67',
+      'input keyevent 62',
+      'input keyevent 111',
+    ]);
+  });
 });
 
 describe('createAndroidBackend', () => {

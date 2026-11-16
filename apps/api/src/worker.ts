@@ -8,6 +8,7 @@ import {
   createXctestBackend,
   type DeviceBackend,
   type DevicePlatform,
+  type Key,
   type PhoneUseError,
 } from '@phone-use/sdk';
 import { ViewerInputs } from './viewer-input.ts';
@@ -815,7 +816,7 @@ export class SandboxWorker {
       case 'typeText':
         return backend.typeText(args[0] as string);
       case 'pressKey':
-        return backend.pressKey(args[0] as 'return');
+        return backend.pressKey(args[0] as Key);
       case 'scroll':
         return backend.scroll(args[0] as Parameters<DeviceBackend['scroll']>[0]);
       case 'pan':

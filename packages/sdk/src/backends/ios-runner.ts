@@ -276,7 +276,7 @@ export async function runningApps(udid: string): Promise<string[]> {
   return [...ids];
 }
 
-/** XCTest runner apps on the simulator that are not ours (WebDriverAgent and other automation tools). */
+/** XCTest runner apps on the simulator that are not ours (other automation tools). */
 async function foreignRunners(udid: string): Promise<string[]> {
   return (await runningApps(udid)).filter((id) => id.endsWith('.xctrunner') && id !== RUNNER_BUNDLE);
 }

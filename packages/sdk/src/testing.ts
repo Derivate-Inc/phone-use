@@ -3,6 +3,7 @@ import type {
   AlertAction,
   BackendAlertResult,
   Capability,
+  Key,
   OpenAppResult,
   PressTarget,
   Rect,
@@ -102,7 +103,7 @@ export class FakeBackend extends BaseDeviceBackend {
     return Promise.resolve();
   }
 
-  override pressKey(key: 'return'): Promise<void> {
+  override pressKey(key: Key): Promise<void> {
     this.record('pressKey', key);
     return Promise.resolve();
   }

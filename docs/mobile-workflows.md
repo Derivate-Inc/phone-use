@@ -3,7 +3,7 @@
 Phone-use adds an execution and verification layer to an existing coding agent.
 Phone-use drives devices with its own layer: an XCTest runner on iOS simulators
 (`packages/sdk/ios-runner`) and adb on
-Android. (Until 2026-11-04 the iOS machinery was Callstack's agent-device.)
+Android. (Until 2026-11-04 the iOS machinery was a third-party device runtime.)
 Phone-use does not replace your coding agent's repository editing, planning, or
 model choice.
 
@@ -141,7 +141,7 @@ and saved all evidence without capture errors. The verified execution took
 Automated tests cover provider image wire formats, failed and unavailable
 verification, interleaved session isolation, workflow evidence and cancellation,
 and comparison reset/grader/timeout behavior. This is functional validation,
-not evidence of superiority over Pi plus native MCP or agent-device.
+not evidence of superiority over other setups.
 Real-device Android, remote backends, and competitive model-driven task suites
 still need environment-specific live evaluation.
 

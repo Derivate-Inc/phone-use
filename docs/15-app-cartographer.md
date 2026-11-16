@@ -8,7 +8,7 @@ An agent that **autonomously crawls a native app and builds a reusable map of it
 
 ## Why it's novel
 
-Every mobile-agent tool today (mobile-mcp, agent-device, droidrun, Mobilerun, the CUA-style loops) operates as a **greedy forward loop**: observe the screen, ask the model what to tap, tap, repeat — starting from scratch on every task. A few can record and replay a *single* linear trace.
+Mobile-agent tools today, including the computer-use-style loops, operate as a **greedy forward loop**: observe the screen, ask the model what to tap, tap, repeat — starting from scratch on every task. A few can record and replay a *single* linear trace.
 
 Nobody builds a **persistent, reusable navigational graph of a native app by autonomous exploration.** The web has had crawlers and sitemaps for 25 years; native mobile has nothing equivalent because you can't "view source" — you have to physically explore the UI. Accessibility-signature keying + backtracking makes it possible.
 

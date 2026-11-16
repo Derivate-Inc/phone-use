@@ -33,7 +33,7 @@ next CLI process.
   that cannot be focused) and Objective-C exceptions are returned as errors of
   the verb that caused them; the serving test never dies.
 - **One runner per simulator, checked.** Launching refuses when another XCTest
-  runner (WebDriverAgent or another tool) is active on the same simulator, since
+  runner (another tool's) is active on the same simulator, since
   two runners evict each other. Pass `takeover: true` to stop it instead.
 
 ## Protocol 2

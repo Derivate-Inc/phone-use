@@ -35,6 +35,10 @@ export type Snapshot = {
 /** Scroll gesture direction. */
 export type ScrollDirection = 'up' | 'down' | 'left' | 'right';
 
+/** The keyboard keys a backend can press. Text goes through `type`; these are the keys text cannot express. */
+export type Key = 'return' | 'tab' | 'backspace' | 'space' | 'escape';
+export const KEYS: readonly Key[] = ['return', 'tab', 'backspace', 'space', 'escape'];
+
 /** Options for one scroll step. */
 export type ScrollOptions = {
   /**
