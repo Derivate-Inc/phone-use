@@ -99,6 +99,24 @@ export function VerifyNote({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
+/** Shown to an account that is not approved for cloud phones: say so before a create is refused. */
+export function WaitlistNote({ url }: { url: string }) {
+  return (
+    <div className="dash-banner is-note" role="status">
+      <div>
+        <h2>Cloud phones are on a waitlist</h2>
+        <p>
+          This account cannot create cloud phones yet. phone-use still works on your own machine with the local
+          simulator, and that needs no account.
+        </p>
+      </div>
+      <a className="dash-btn2 is-sm" href={url}>
+        Join the waitlist
+      </a>
+    </div>
+  );
+}
+
 export function SectionHead({ title, children }: { title: string; children: ReactNode }) {
   return (
     <header className="dash-head">

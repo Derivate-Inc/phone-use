@@ -9,6 +9,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   return [
     { url: base },
     { url: `${base}/benchmark` },
+    { url: `${base}/waitlist` },
     { url: `${base}/terms` },
     { url: `${base}/privacy` },
     ...docs,

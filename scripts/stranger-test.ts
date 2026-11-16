@@ -12,6 +12,11 @@
 // comes from mail.tm's public API, so it needs nothing configured; the account
 // it creates is real — the control plane mails the operator on every signup,
 // so expect one "new signup: …@…" mail per run.
+//
+// Since the cloud waitlist (docs/46-cloud-waitlist.md) a brand-new account is
+// refused at create with code cloud_waitlist. Against a control plane with the
+// waitlist on, this test stops there unless the throwaway account is approved
+// first (bun scripts/cloud-waitlist.ts approve <its email>).
 import { createCloudSandboxBackend } from '@phone-use/sdk';
 
 const API = (process.env.PHONE_USE_CLOUD_URL ?? 'https://api.phoneuse.dev').replace(/\/+$/, '');

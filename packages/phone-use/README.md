@@ -17,7 +17,7 @@ Windows (`phone-use connect android`).
 ## Teach your agent the CLI
 
 One command makes Claude Code, Cursor, or any skills-compatible agent fluent
-with phone-use — provisioning, parallel fleets, and honest verification:
+with phone-use — the local simulator, the verbs, and honest verification:
 
 ```bash
 npx skills add Derivate-Inc/phone-use-skills
@@ -131,9 +131,21 @@ first run and require re-running the same command with `--yes`; deny-tier
 blocks cannot be overridden by any flag. Output is styled for humans at a TTY
 and automatically plain when piped (or under `NO_COLOR`).
 
-## Cloud phones
+## Cloud phones (waitlist)
 
-Provision iOS simulators in the cloud and hand them to any agent:
+Everything above runs on your own machine, is free, and needs no account.
+Cloud phones run on our hardware and are on a waitlist:
+https://phoneuse.dev/waitlist
+
+`phone-use create` from an account that is not approved (or with no key at
+all) creates nothing. It prints a short message written for a coding agent —
+cloud phones are on a waitlist, the exact command that continues on the local
+simulator, and the waitlist link to tell the user — and exits `1`. With
+`--json` the same facts are on stdout as `{ "code": "cloud_waitlist", … }`.
+The MCP server's `create_cloud_phone` tool returns the same text as a
+structured error.
+
+For an approved account, cloud phones work as before:
 
 ```bash
 phone-use login          # browser sign-in; key saved to ~/.phone-use/config.json

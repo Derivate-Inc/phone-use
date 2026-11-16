@@ -3,6 +3,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { z } from 'zod';
 import { runTask } from './agent.ts';
 import { selectDevice } from './bind.ts';
+import { CREATE_CLOUD_PHONE_DESCRIPTION, createCloudPhoneForMcp } from './cloud-mcp.ts';
 import {
   acquireDevice,
   callerIdentity,
@@ -106,6 +107,52 @@ export function buildMcpServer(phones: readonly Phone[] = []): McpServer {
     'note',
   ]);
   const defs = process.env.PHONE_USE_SURFACE === 'raw' ? REGISTRY.filter((d) => RAW.has(d.name)) : REGISTRY;
+
+  // The one tool that is not a device verb: ask the control plane for a cloud
+  // phone (cloud-mcp.ts). Cloud phones are on a waitlist, so for most callers
+  // the answer is the waitlist message as a structured error. It takes no
+  // `phone`: it does not act on any of this server's devices. The raw
+  // ablation surface leaves it out.
+  if (process.env.PHONE_USE_SURFACE !== 'raw') {
+    server.registerTool(
+      'create_cloud_phone',
+      {
+        description: CREATE_CLOUD_PHONE_DESCRIPTION,
+        inputSchema: {
+          platform: z.enum(['ios', 'android']).optional().describe('Which phone to ask for (default ios)'),
+        },
+      },
+      async (args: { platform?: 'ios' | 'android' | undefined }) => {
+        // A cloud phone costs running minutes, so it is not a read: observe
+        // mode refuses it like any other non-read tool.
+        const verdict = evaluate({
+          tool: 'create_cloud_phone',
+          risk: 'mutate',
+          target: `cloud ${args.platform ?? 'ios'}`,
+          app: undefined,
+          confirm: undefined,
+        });
+        if (verdict.decision === 'deny') return { ...text(`⛔ BLOCKED: ${verdict.reason}`), isError: true };
+        if (verdict.decision !== 'allow') return text(renderAsk(verdict));
+        const result = await createCloudPhoneForMcp(args);
+        trace({
+          tool: 'create_cloud_phone',
+          args,
+          risk: 'mutate',
+          decision: 'allow',
+          app: undefined,
+          ms: 0,
+          ok: !result.isError,
+          detail: result.text.slice(0, 120),
+        });
+        return {
+          ...text(result.text),
+          structuredContent: result.structured,
+          ...(result.isError ? { isError: true } : {}),
+        };
+      },
+    );
+  }
 
   for (const def of defs) {
     // Confirm token: every mutating/destructive tool accepts an optional

@@ -1,12 +1,15 @@
 export class CloudApiError extends Error {
   readonly status: number;
   readonly code?: string | undefined;
+  /** Sent with the `cloud_waitlist` refusal: where to join the waitlist. */
+  readonly waitlistUrl?: string | undefined;
 
-  constructor(message: string, status: number, code?: string) {
+  constructor(message: string, status: number, code?: string, waitlistUrl?: string) {
     super(message);
     this.name = 'CloudApiError';
     this.status = status;
     this.code = code;
+    this.waitlistUrl = waitlistUrl;
   }
 }
 
@@ -22,12 +25,14 @@ export async function readJson<T>(response: Response): Promise<T> {
     error?: string | undefined;
     message?: string | undefined;
     code?: string | undefined;
+    waitlistUrl?: string | undefined;
   };
   if (!response.ok) {
     throw new CloudApiError(
       body.error ?? body.message ?? `HTTP ${response.status}`,
       response.status,
       body.code,
+      typeof body.waitlistUrl === 'string' ? body.waitlistUrl : undefined,
     );
   }
   return body as T;

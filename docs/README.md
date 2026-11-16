@@ -12,3 +12,4 @@ These are the engineering notes behind it.
 | [cloud-live-video.md](cloud-live-video.md) | Live H.264 video from a cloud iPhone: worker setup and verification |
 | [harness-reliability.md](harness-reliability.md) | Implementation direction for reliable runs in the harness and CLI |
 | [mobile-workflows.md](mobile-workflows.md) | Verified workflows: the execution and verification layer on top of a coding agent |
+| [46-cloud-waitlist.md](46-cloud-waitlist.md) | Cloud phones behind a waitlist: the approval flag, the `cloud_waitlist` answer, operator commands |

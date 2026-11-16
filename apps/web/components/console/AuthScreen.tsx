@@ -4,7 +4,14 @@
 
 import { useState } from "react";
 
-export type Me = { name?: string; isAdmin: boolean; keyCreatedAt?: number | null };
+export type Me = {
+  name?: string;
+  isAdmin: boolean;
+  keyCreatedAt?: number | null;
+  /** False while cloud phones are on a waitlist for this account. */
+  cloudApproved?: boolean;
+  waitlistUrl?: string;
+};
 
 // Android is offered only once an Android worker is deployed (see Dashboard).
 const PHONES = process.env.NEXT_PUBLIC_ANDROID_CLOUD === "1" ? "a real iPhone or Android phone" : "a real iPhone";

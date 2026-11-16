@@ -38,7 +38,15 @@ import { useTheme } from "../lib/theme";
 import { AgentPanel, type PanelView } from "./console/AgentPanel";
 import { AuthScreen, type Me } from "./console/AuthScreen";
 import { ClosedReceipt, PhoneStage } from "./console/PhoneStage";
-import { CliApprove, ConsoleShell, FirstRun, KeysSection, UsageSection, VerifyNote } from "./console/Sections";
+import {
+  CliApprove,
+  ConsoleShell,
+  FirstRun,
+  KeysSection,
+  UsageSection,
+  VerifyNote,
+  WaitlistNote,
+} from "./console/Sections";
 import { type CreateFailure, type Section, Sidebar, type SidebarPhone } from "./console/Sidebar";
 import LiveView from "./LiveView";
 
@@ -58,6 +66,10 @@ const sentence = (message: string): string => {
 
 const nameOf = (me: Me): string => (me.isAdmin ? "Admin" : (me.name ?? "Account"));
 
+/** The waitlist link for an account that is not approved for cloud phones, else null. */
+const waitlistOf = (me: Me): string | null =>
+  me.cloudApproved === false ? (me.waitlistUrl ?? "https://phoneuse.dev/waitlist") : null;
+
 /** A sidebar still, refreshed only right after the agent acts (see useStreamThumb). */
 function LiveThumb({ phone, lastAgentAt, now }: { phone: Sandbox; lastAgentAt: number | null | undefined; now: number }) {
   const key = typeof lastAgentAt === "number" && now - lastAgentAt < 60_000 ? Math.floor(lastAgentAt / 15_000) : undefined;
@@ -70,6 +82,7 @@ export function Dashboard() {
   const [authed, setAuthed] = useState(false);
   const [who, setWho] = useState("");
   const [keyCreatedAt, setKeyCreatedAt] = useState<number | null>(null);
+  const [waitlistUrl, setWaitlistUrl] = useState<string | null>(null);
   const [justSignedUp, setJustSignedUp] = useState(false);
   const [theme, setTheme] = useTheme();
   // The toggle shows what you see, so "system" resolves through the media query.
@@ -185,6 +198,7 @@ export function Dashboard() {
       .then((me) => {
         setWho(nameOf(me));
         setKeyCreatedAt(me.keyCreatedAt ?? null);
+        setWaitlistUrl(waitlistOf(me));
         setAuthed(true);
         void refresh();
       })
@@ -333,6 +347,7 @@ export function Dashboard() {
         onSignedIn={(me, signedUp) => {
           setWho(nameOf(me));
           setKeyCreatedAt(me.keyCreatedAt ?? null);
+          setWaitlistUrl(waitlistOf(me));
           if (signedUp) setJustSignedUp(true);
           setAuthed(true);
           void refresh();
@@ -360,7 +375,8 @@ export function Dashboard() {
   const banners = (
     <>
       {cliPort && <CliApprove port={cliPort} busy={cliBusy} onApprove={approveCli} onDeny={() => setCliPort(null)} />}
-      {justSignedUp && <VerifyNote onDismiss={() => setJustSignedUp(false)} />}
+      {waitlistUrl && <WaitlistNote url={waitlistUrl} />}
+      {justSignedUp && !waitlistUrl && <VerifyNote onDismiss={() => setJustSignedUp(false)} />}
       {error && (
         <div className="dash-banner is-error" role="alert">
           <p>{error}</p>
