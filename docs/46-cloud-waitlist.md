@@ -1,6 +1,7 @@
 # Cloud waitlist: what shipped and how to run it
 
-Status: **built 2026-11-13. Not deployed yet.**
+Status: **live on the hosted control plane since 2026-11-16.** The waitlist page itself is
+not deployed yet (see the end of this doc).
 
 In one line: phone-use stays free on the user's own machine, and cloud phones go behind a
 waitlist that people meet when they run `create`.
@@ -111,9 +112,18 @@ and an iOS worker, all local):
 - The waitlist page, in headless Chromium: a malformed email shows an error; a real entry
   shows the confirmation and appears in `list`.
 
-Not checked: anything on the live servers. Nothing was deployed, so the production
-control plane, the production database's one-time backfill and the live Mac worker have
-not run this code.
+Checked on the hosted service on 2026-11-16, after deploying:
+
+- The one-time approval was rehearsed first on a copy of the production database: every
+  existing account ended up approved, a second start changed nothing, and no other table
+  changed. The copy was deleted afterwards.
+- An account that existed before the deploy is approved, created a cloud iPhone, read its
+  screen and closed it.
+- An account minted unapproved for the check gets HTTP 403 `cloud_waitlist` and no phone.
+- Both workers stayed connected.
+
+Not done yet: the site has not been deployed, so the waitlist link returns 404 until it
+is. Android cloud creation was not exercised.
 
 Found while checking: `open -a Simulator && phone-use observe` fails on a cold start,
 because `open` returns before the simulator has booted; `observe` works a few seconds
