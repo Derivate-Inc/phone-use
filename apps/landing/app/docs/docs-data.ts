@@ -239,7 +239,7 @@ const pages: DocPage[] = [
           {
             type: "code",
             language: "bash",
-            code: 'phone-use open Settings\nphone-use tap "General"\nphone-use type "Ada" --field "First name"\nphone-use scroll down\nphone-use nav back\nphone-use wait_for "About"',
+            code: 'phone-use open Settings\nphone-use tap "General"\nphone-use type "Ada" --field "First name"\nphone-use press return --yes\nphone-use scroll down\nphone-use scroll down --until "Developer"\nphone-use scroll down --collect\nphone-use nav back\nphone-use wait_for "About"\nphone-use wait_for --stable',
           },
         ],
       },
@@ -814,7 +814,7 @@ const pages: DocPage[] = [
         blocks: [
           {
             type: "paragraph",
-            text: "`observe` · `screenshot` · `wait_for` · `tap` · `type` · `scroll` · `drag` · `handle_alert` · `open` · `nav` · `goto` · `ask` · `search` · `toggle` · `note` · `batch` · `skill` · `atlas`",
+            text: "`observe` · `screenshot` · `wait_for` · `tap` · `type` · `press` · `scroll` · `drag` · `handle_alert` · `open` · `nav` · `goto` · `ask` · `search` · `toggle` · `note` · `batch` · `skill` · `atlas`",
           },
           { type: "code", language: "bash", code: "phone-use goto --help" },
         ],

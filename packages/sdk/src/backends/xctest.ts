@@ -5,6 +5,7 @@ import { BaseDeviceBackend, type PressOutcome } from '../backend.ts';
 import type {
   AlertAction,
   BackendAlertResult,
+  Key,
   OpenAppResult,
   PressTarget,
   ScrollDirection,
@@ -306,7 +307,7 @@ class XctestBackend extends BaseDeviceBackend {
     await this.rpc('type', { text });
   }
 
-  override async pressKey(key: 'return'): Promise<void> {
+  override async pressKey(key: Key): Promise<void> {
     await this.rpc('key', { key });
   }
 

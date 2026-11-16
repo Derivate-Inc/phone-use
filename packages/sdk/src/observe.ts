@@ -1,5 +1,5 @@
 import type { DeviceBackend } from './backend.ts';
-import type { Rect, SnapshotNode } from './device.ts';
+import type { Key, Rect, SnapshotNode } from './device.ts';
 import { SessionNotFoundError } from './errors.ts';
 
 // ---------------------------------------------------------------------------
@@ -717,8 +717,8 @@ export class DeviceCore {
    * scroll down until found or the list ends.
    */
   async resolveElement(query: string, opts: ResolveOpts = {}): Promise<Resolution> {
-    // Look where the agent is looking before scrolling anywhere, as Maestro,
-    // WebDriverAgent and agent-device do. An id or exact-label match here is
+    // Look where the agent is looking before scrolling anywhere. An id or
+    // exact-label match here is
     // the target (or, when several tie, the ambiguity the agent must resolve).
     // A weaker match could lose to an exact one elsewhere, so it still gets
     // the full search from the top.
@@ -1038,8 +1038,7 @@ export class DeviceCore {
    *
    * The swipe holds still before lifting, so the list does not coast and is at
    * rest when the scroll returns (measured: nothing moves afterwards). Waiting
-   * for the screen to go quiet cost 0.6–2.6 s per step; agent-device,
-   * mobile-mcp and idb do not wait between search swipes either.
+   * for the screen to go quiet cost 0.6–2.6 s per step.
    *
    * An unchanged screen is the end of the list, unless rows load in late (an
    * infinite feed). With `confirmEnd`, a second swipe that also changes nothing
@@ -1109,6 +1108,14 @@ export class DeviceCore {
   /** Type into whatever currently has keyboard focus. */
   async typeText(text: string): Promise<void> {
     await this.backend.typeText(text);
+  }
+
+  /**
+   * Press one keyboard key: Return, Tab, Backspace, Space or Escape. For what
+   * typed text cannot express. A backend rejects a key it cannot press.
+   */
+  async pressKey(key: Key): Promise<void> {
+    await this.backend.pressKey(key);
   }
 
   /**

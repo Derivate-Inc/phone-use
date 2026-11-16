@@ -34,6 +34,7 @@ const POSITIONALS: Record<string, string[]> = {
   tap: ['label'],
   type: ['text'],
   scroll: ['direction'],
+  press: ['key'],
   drag: ['x', 'y', 'dx', 'dy'],
   handle_alert: ['action'],
   open: ['app'],
@@ -184,11 +185,24 @@ export function toolHelp(def: ToolDef): string {
         spec.kind === 'enum' ? (spec.values?.join('|') ?? 'enum') : spec.kind === 'json' ? 'JSON' : spec.kind;
       return `  --${k} <${type}>${spec.doc ? `  ${spec.doc}` : ''}`;
     });
+  const argDocs = positionals
+    .map((p) => {
+      const schema = def.schema[p];
+      if (!schema) return '';
+      const spec = specOf(schema);
+      const type =
+        spec.kind === 'enum' ? (spec.values?.join('|') ?? 'enum') : spec.kind === 'json' ? 'JSON' : '';
+      const required = schema instanceof z.ZodOptional ? '' : ' (required)';
+      return type || spec.doc || required
+        ? `  <${p}>${type ? ` ${type}` : ''}${required}${spec.doc ? `  ${spec.doc}` : ''}`
+        : '';
+    })
+    .filter(Boolean);
   const confirmNote =
     def.risk === 'read'
       ? ''
       : '\n\nDestructive targets (delete/pay/send/2FA) refuse on first run — re-run the SAME command with --yes to confirm. Deny-tier blocks cannot be overridden.';
-  return `phone-use ${def.name}${posDoc ? ` ${posDoc}` : ''} [flags]\n\n${def.description}\n${flags.length ? `\nflags:\n${flags.join('\n')}` : ''}${confirmNote}`;
+  return `phone-use ${def.name}${posDoc ? ` ${posDoc}` : ''} [flags]\n\n${def.description}\n${argDocs.length ? `\narguments:\n${argDocs.join('\n')}\n` : ''}${flags.length ? `\nflags:\n${flags.join('\n')}` : ''}${confirmNote}`;
 }
 
 /** [name, one-line summary] per verb — the global help styles these. */
@@ -210,6 +224,17 @@ export async function execCliTool(def: ToolDef, parsed: ParsedCli): Promise<CliO
   if (!parsed.ok) return { out: `${parsed.error}\n\n${toolHelp(def)}`, code: 1 };
   if (parsed.help) return { out: toolHelp(def), code: 0 };
   const { args, yes } = parsed;
+  // A missing required argument is a usage error. Checked before the
+  // permission gate, so `toggle "Reduce Motion"` (no app) says what is missing
+  // instead of asking to confirm a call that cannot work.
+  const missing = Object.entries(def.schema)
+    .filter(([k, schema]) => !(schema instanceof z.ZodOptional) && args[k] === undefined)
+    .map(([k]) => k);
+  if (missing.length)
+    return {
+      out: `${def.name} needs ${missing.map((k) => `<${k}>`).join(' and ')}.\n\n${toolHelp(def)}`,
+      code: 1,
+    };
   const app = typeof args.app === 'string' ? args.app : undefined;
 
   const ctx = { tool: def.name, risk: def.risk, target: targetOf(def.name, args), app };

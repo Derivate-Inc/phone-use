@@ -1,9 +1,7 @@
 // Tier 1 runner: every probe × seed against one tool on one simulator, graded by Gauntlet.
 //
-//   bun eval/src/run.ts --udid <simulator> [--tool phone-use|phone-use-mcp|agent-device|maestro|mobilerun] \
-//       [--only A1,B2] [--dev-seeds 1,2,3] [--heldout 2] [--out eval/results/<dir>] \
-//       [--agent-device-bin <path>] [--maestro-bin <path>] \
-//       [--mobilerun-python <venv python>] [--mobilerun-url http://127.0.0.1:6643]
+//   bun eval/src/run.ts --udid <simulator> [--tool phone-use|phone-use-mcp] \
+//       [--only A1,B2] [--dev-seeds 1,2,3] [--heldout 2] [--out eval/results/<dir>]
 //
 // The simulator must be one you own: the runner installs Gauntlet, reinstalls it for permission
 // probes, and drives it for several minutes. Results: results.jsonl (one line per probe × seed,
@@ -14,9 +12,6 @@ import { appendFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { cpus, hostname, totalmem } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createAgentDeviceAdapter } from './adapters/agent-device.ts';
-import { createMaestroAdapter } from './adapters/maestro.ts';
-import { createMobilerunAdapter } from './adapters/mobilerun.ts';
 import { createPhoneUseAdapter } from './adapters/phone-use.ts';
 import { createPhoneUseMcpAdapter } from './adapters/phone-use-mcp.ts';
 import { verdictOf } from './classify.ts';
@@ -46,32 +41,6 @@ const ADAPTERS: Record<string, (udid: string, stateDir: string) => Adapter> = {
     createPhoneUseAdapter(udid, { mapDir: join(stateDir, 'maps'), leaseDir: join(stateDir, 'leases') }),
   'phone-use-mcp': (udid, stateDir) =>
     createPhoneUseMcpAdapter(udid, { mapDir: join(stateDir, 'maps'), leaseDir: join(stateDir, 'leases') }),
-  'agent-device': (udid, stateDir) => {
-    const bin = opt('agent-device-bin');
-    if (!bin) throw new Error('pass --agent-device-bin <path to an installed agent-device>');
-    return createAgentDeviceAdapter(udid, { stateDir, bin });
-  },
-  maestro: (udid) => {
-    const bin = opt('maestro-bin');
-    if (!bin) throw new Error('pass --maestro-bin <path to the maestro CLI>');
-    return createMaestroAdapter(udid, { bin });
-  },
-  // The ios-portal server must already run on --udid (see the adapter); its URL names that device.
-  mobilerun: (udid) => {
-    const python = opt('mobilerun-python');
-    if (!python) throw new Error('pass --mobilerun-python <venv python with mobilerun-core[local]>');
-    // A portal on another simulator would score this one's taps as "nothing fired".
-    try {
-      execFileSync('pgrep', ['-f', `xcodebuild.*id=${udid}`]);
-    } catch {
-      throw new Error(`no ios-portal (xcodebuild … -destination id=${udid}) runs for this simulator`);
-    }
-    return createMobilerunAdapter({
-      python,
-      url: opt('mobilerun-url') ?? 'http://127.0.0.1:6643',
-      portalRev: opt('mobilerun-portal-rev') ?? 'c6f1cb7',
-    });
-  },
 };
 
 /** Wrap an adapter so every call the probe makes is recorded with its claim. */
@@ -259,7 +228,7 @@ async function main() {
   console.log(md);
 }
 
-// Exit explicitly: a tool's detached daemon (agent-device) can inherit our pipes and keep Bun alive.
+// Exit explicitly: a tool's detached daemon can inherit our pipes and keep Bun alive.
 main().then(
   () => process.exit(0),
   (e) => {

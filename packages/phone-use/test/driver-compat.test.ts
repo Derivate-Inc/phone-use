@@ -113,6 +113,7 @@ describe('driver facade (singleton compat)', () => {
       'press',
       'pressAt',
       'pressInZoom',
+      'pressKey',
       'pressReturn',
       'readField',
       'renderActionResult',

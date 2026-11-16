@@ -3,7 +3,7 @@ import { writeFile } from 'node:fs/promises';
 import { promisify } from 'node:util';
 import { BaseDeviceBackend } from '../backend.ts';
 import type { DeviceConfig } from '../config.ts';
-import type { OpenAppResult, PressTarget, Rect, ScrollDirection, Snapshot } from '../device.ts';
+import type { Key, OpenAppResult, PressTarget, Rect, ScrollDirection, Snapshot } from '../device.ts';
 import { ActionFailedError, DeviceNotFoundError, PhoneUseError, TimeoutError } from '../errors.ts';
 import { defaultExecRunner, type ExecRunner, isExecError } from '../exec.ts';
 import { createDeviceHandle, type Device } from '../lifecycle.ts';
@@ -29,7 +29,23 @@ import { parseHierarchy } from './android-hierarchy.ts';
 // ---------------------------------------------------------------------------
 
 /** Android keycodes used below (KeyEvent constants). */
-const KEYCODE = { home: 3, back: 4, enter: 66, del: 67, moveEnd: 123 } as const;
+const KEYCODE = {
+  home: 3,
+  back: 4,
+  tab: 61,
+  space: 62,
+  enter: 66,
+  del: 67,
+  escape: 111,
+  moveEnd: 123,
+} as const;
+const KEY_EVENT: Record<Key, number> = {
+  return: KEYCODE.enter,
+  tab: KEYCODE.tab,
+  backspace: KEYCODE.del,
+  space: KEYCODE.space,
+  escape: KEYCODE.escape,
+};
 
 /** Where uiautomator writes its dump: /data/local/tmp round-trips on scoped-storage builds, /sdcard does not. */
 const DUMP_PATH = '/data/local/tmp/phone-use-dump.xml';
@@ -415,8 +431,8 @@ export class AndroidBackend extends BaseDeviceBackend {
     }
   }
 
-  override async pressKey(_key: 'return'): Promise<void> {
-    await this.shell('input', 'keyevent', String(KEYCODE.enter));
+  override async pressKey(key: Key): Promise<void> {
+    await this.shell('input', 'keyevent', String(KEY_EVENT[key] ?? KEYCODE.enter));
   }
 
   override async scroll(direction: ScrollDirection): Promise<void> {

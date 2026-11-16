@@ -3,6 +3,7 @@ import type {
   AlertAction,
   BackendAlertResult,
   Capability,
+  Key,
   OpenAppResult,
   PressTarget,
   ScrollDirection,
@@ -14,9 +15,9 @@ import { PhoneUseError, UnsupportedCapabilityError } from './errors.ts';
 /**
  * The backend contract: a STRUCTURAL interface —
  * any object with these methods is a backend — plus an optional
- * {@link BaseDeviceBackend} class with the plumbing done (Appium BaseDriver
- * ergonomics). Methods reject only with PhoneUseError subclasses; backends
- * normalize their transport's errors at the boundary.
+ * {@link BaseDeviceBackend} class with the plumbing done. Methods reject only
+ * with PhoneUseError subclasses; backends normalize their transport's errors
+ * at the boundary.
  */
 /** What a tap did, when the backend can tell (the iOS runner compares the screen before and after). */
 export type PressOutcome = { changed?: boolean | undefined };
@@ -42,8 +43,8 @@ export interface DeviceBackend {
   fill(ref: string, text: string): Promise<void>;
   /** Type into whatever currently has keyboard focus. */
   typeText(text: string): Promise<void>;
-  /** Press a hardware/keyboard key (Return only, this cycle). */
-  pressKey(key: 'return'): Promise<void>;
+  /** Press one keyboard key. A backend rejects a key it cannot press. */
+  pressKey(key: Key): Promise<void>;
   /** Scroll the active scroll view one step. Backends that always return at once ignore `opts`. */
   scroll(direction: ScrollDirection, opts?: ScrollOptions): Promise<void>;
   /** Coordinate drag: touch down at (x,y), move by (dx,dy). Operates picker wheels, sliders, carousels. */
@@ -109,7 +110,7 @@ export abstract class BaseDeviceBackend implements DeviceBackend {
   typeText(_text: string): Promise<void> {
     return Promise.reject(this.unsupported('type'));
   }
-  pressKey(_key: 'return'): Promise<void> {
+  pressKey(_key: Key): Promise<void> {
     return Promise.reject(this.unsupported('key'));
   }
   scroll(_direction: ScrollDirection, _opts?: ScrollOptions): Promise<void> {

@@ -92,6 +92,26 @@ export async function answerField(app: string, query: string, io: MapIO): Promis
 
 export type SearchResult = { ok: boolean; results?: string | undefined; reason?: string | undefined };
 
+// Why a field could not be found or focused, in terms the caller can act on:
+// a permission prompt or a first-run sheet covering the app is the usual
+// cause, and its buttons name the way past it.
+async function whatIsCovering(): Promise<string> {
+  const alert = await driver.handleAlert('get').catch(() => undefined);
+  if (alert?.present)
+    return ` A system alert is showing: ${alert.description ?? 'alert'}. Clear it with handle_alert and retry.`;
+  const buttons = [
+    ...new Set(
+      driver
+        .interactiveElements()
+        .filter((e) => e.role === 'Button' && e.label)
+        .map((e) => e.label),
+    ),
+  ].slice(0, 6);
+  return buttons.length
+    ? ` Buttons on screen: ${buttons.map((b) => JSON.stringify(b)).join(', ')}. If a first-run or sign-in screen is covering the app, get past it and retry.`
+    : '';
+}
+
 // The input primitive: open an app, focus its search field (activating it if it
 // needs a tap first), type the query, and return the results screen. Most search
 // bars filter live; pass submit=true for ones that act on Return (Safari's
@@ -160,7 +180,7 @@ export async function search(app: string, query: string, submit = false): Promis
       }
     }
   }
-  if (!f) return { ok: false, reason: `no search field found in ${app}` };
+  if (!f) return { ok: false, reason: `no search field found in ${app}.${await whatIsCovering()}` };
 
   // Focus via a coordinate tap on the field's center — more reliable at raising
   // the keyboard than a ref-press — then type. If typeText lands before focus
@@ -178,7 +198,14 @@ export async function search(app: string, query: string, submit = false): Promis
     await focusTap();
     await Bun.sleep(650);
     await driver.observe();
-    await driver.typeText(query);
+    try {
+      await driver.typeText(query);
+    } catch {
+      return {
+        ok: false,
+        reason: `the search field in ${app} would not take focus.${await whatIsCovering()}`,
+      };
+    }
   }
   if (submit) {
     await driver.pressReturn(); // commit for Return-driven bars (Safari, forms)
@@ -394,7 +421,7 @@ export async function setField(
     };
   }
 
-  // Post-typing read-back (minitap's +15pp reliability stack, ported): after
+  // Post-typing read-back: after
   // the fill, re-observe and report the field's ACTUAL content so the model
   // verifies against ground truth instead of assuming the type landed.
   const readBack = (): string | undefined => {
@@ -470,7 +497,7 @@ export async function verifyScreen(contains: string): Promise<VerifyResult> {
   return { ok: found, detail: found ? `screen contains "${contains}"` : `"${contains}" not on screen` };
 }
 
-// --- Validated action batching (UFO2-style, research brief 3 #3) -----------
+// --- Validated action batching ----------------------------------------------
 // One agent turn emits several same-context actions instead of one-per-turn
 // round-trip. Each action is re-resolved against the LIVE tree at execution
 // time (targets are by LABEL, not @ref — @refs rotate as the screen changes),
@@ -605,26 +632,35 @@ export async function toggleField(
   const q = switchLabel.toLowerCase();
   const map = await io.loadMap(app);
 
-  let reached = false;
   if (map) {
-    const node = map.nodes.find((n) => n.labels.some((l) => driver.labelMatches(l, q)));
+    // An exact label wins over a loose one: "Motion" loosely matches "Reduce
+    // Motion", and following it lands one screen short of the switch.
+    const node =
+      map.nodes.find((n) => n.labels.some((l) => l.trim().toLowerCase() === q)) ??
+      map.nodes.find((n) => n.labels.some((l) => driver.labelMatches(l, q)));
     if (node) {
       const path = findPath(map, node.title);
       if (path) {
-        await navigate(app, path);
-        reached = true;
+        // The map can point at a screen without the switch (a loose match),
+        // or along a path the app no longer has. Either way, search for the
+        // switch instead of giving up.
+        try {
+          await navigate(app, path);
+          const flipped = await flipHere(switchLabel, 'map', desired);
+          if (flipped.ok) return flipped;
+        } catch {
+          /* stale path — fall through to the search */
+        }
       }
     }
   }
-  if (!reached) {
-    const explored = await crawlToward(app, switchLabel, { stopOnContain: true });
-    const merged = map ? mergeMaps(map, explored.map) : explored.map;
-    await io.saveMap(merged);
-    if (!explored.found)
-      return { ok: false, nav: 'search', reason: `switch "${switchLabel}" not found in ${app}` };
-  }
+  const explored = await crawlToward(app, switchLabel, { stopOnContain: true });
+  const merged = map ? mergeMaps(map, explored.map) : explored.map;
+  await io.saveMap(merged);
+  if (!explored.found)
+    return { ok: false, nav: 'search', reason: `switch "${switchLabel}" not found in ${app}` };
 
-  return flipHere(switchLabel, reached ? 'map' : 'search', desired);
+  return flipHere(switchLabel, 'search', desired);
 }
 
 // Toggle a switch on the current screen (shared by toggle/toggleField).

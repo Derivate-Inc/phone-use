@@ -6,9 +6,9 @@ benchmark reports.
 
 ## Research and design
 
-- [agent-device](https://github.com/callstack/agent-device): retain its device
-  runtime behind our existing backend boundary. Its CLI/MCP/Node interfaces
-  share sessions and execution; do not implement another native driver.
+- The third-party device runtime in use at the time: retain it behind our
+  existing backend boundary. Its CLI/MCP/Node interfaces share sessions and
+  execution; do not implement another native driver.
 - [OpenAI image inputs](https://developers.openai.com/api/docs/guides/images-vision):
   Chat Completions accepts image content in user messages, including base64
   data URLs. Complete all tool-result messages before appending associated

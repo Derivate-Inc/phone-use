@@ -26,7 +26,7 @@ type CommonIosOptions = {
    * created there can be booted and closed but not driven.
    */
   simulatorDeviceSet?: string | undefined;
-  /** Stop another XCTest runner (WebDriverAgent, ...) found on the simulator instead of failing. */
+  /** Stop another tool's XCTest runner found on the simulator instead of failing. */
   takeover?: boolean | undefined;
   /** @internal test seam — supplies the backend instead of the XCTest runner. */
   backendFactory?: ((udid: string) => DeviceBackend) | undefined;

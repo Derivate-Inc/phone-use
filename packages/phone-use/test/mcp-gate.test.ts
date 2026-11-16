@@ -39,6 +39,7 @@ const MINIMAL_ARGS: Record<string, Record<string, unknown>> = {
   type: { text: 'mcp gate probe' },
   scroll: { direction: 'down' },
   drag: { x: 100, y: 200, dx: 0, dy: -32 },
+  press: { key: 'return' },
   handle_alert: { action: 'get' },
   open: { app: 'Settings' },
   nav: { to: 'home' },

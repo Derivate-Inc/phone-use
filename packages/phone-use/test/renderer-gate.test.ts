@@ -29,6 +29,7 @@ const MINIMAL_ARGS: Record<string, Record<string, unknown>> = {
   tap: { label: 'General Gate Row' },
   type: { text: 'gate probe' },
   scroll: { direction: 'down' },
+  press: { key: 'return' },
   handle_alert: { action: 'get' },
   open: { app: 'Settings' },
   nav: { to: 'home' },
