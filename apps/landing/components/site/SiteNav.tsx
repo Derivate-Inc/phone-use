@@ -1,12 +1,12 @@
 import Link from "next/link";
 import Logo from "./Logo";
 
-export const APP_URL = "https://app.phoneuse.dev";
 export const GITHUB_URL = "https://github.com/Derivate-Inc/phone-use";
 
 type Section = "docs" | "benchmark";
 
-// The one navigation bar, sticky, on every page
+// The one navigation bar, sticky, on every page. It links to the docs and the
+// source; the benchmark page and the console are reached from the page itself.
 export default function SiteNav({ current, home = "/" }: { current?: Section; home?: string }) {
   return (
     <header className="site-nav">
@@ -19,15 +19,9 @@ export default function SiteNav({ current, home = "/" }: { current?: Section; ho
           <Link href="/docs" aria-current={current === "docs" ? "page" : undefined}>
             Docs
           </Link>
-          <Link href="/benchmark" aria-current={current === "benchmark" ? "page" : undefined}>
-            Benchmark
-          </Link>
           <a href={GITHUB_URL}>GitHub</a>
         </nav>
         <div className="site-nav-end">
-          <a href={APP_URL} className="site-nav-signin">
-            Sign in
-          </a>
           {/* Getting started needs no account: it is the local quick start. */}
           <Link href="/docs/quickstart" className="site-btn site-btn-sm">
             Get started
