@@ -45,6 +45,7 @@ import {
   KeysSection,
   UsageSection,
   VerifyNote,
+  WaitlistFirstRun,
   WaitlistNote,
 } from "./console/Sections";
 import { type CreateFailure, type Section, Sidebar, type SidebarPhone } from "./console/Sidebar";
@@ -375,7 +376,8 @@ export function Dashboard() {
   const banners = (
     <>
       {cliPort && <CliApprove port={cliPort} busy={cliBusy} onApprove={approveCli} onDeny={() => setCliPort(null)} />}
-      {waitlistUrl && <WaitlistNote url={waitlistUrl} />}
+      {/* On the phones section the whole page is the waitlist notice, so the banner is for the other sections. */}
+      {waitlistUrl && section !== "phones" && <WaitlistNote url={waitlistUrl} />}
       {justSignedUp && !waitlistUrl && <VerifyNote onDismiss={() => setJustSignedUp(false)} />}
       {error && (
         <div className="dash-banner is-error" role="alert">
@@ -461,7 +463,9 @@ export function Dashboard() {
       />
     );
   } else {
-    main = (
+    main = waitlistUrl ? (
+      <WaitlistFirstRun url={waitlistUrl} />
+    ) : (
       <FirstRun androidCloud={ANDROID_CLOUD} creating={creating} onCreate={(p) => void create(p)} />
     );
   }
@@ -481,6 +485,7 @@ export function Dashboard() {
             go("phones");
           }}
           androidCloud={ANDROID_CLOUD}
+          canCreate={!waitlistUrl}
           creating={creating}
           onCreate={(p) => void create(p)}
           createFailure={createFailure}

@@ -19,7 +19,7 @@ import {
 import type { ThemeChoice } from "../../lib/theme";
 import { AgentPanel } from "./AgentPanel";
 import { ClosedReceipt, PhoneStage } from "./PhoneStage";
-import { ConsoleShell, FirstRun, KeysSection, UsageSection } from "./Sections";
+import { ConsoleShell, FirstRun, KeysSection, UsageSection, WaitlistFirstRun } from "./Sections";
 import { type CreateFailure, type Section, Sidebar, type SidebarPhone } from "./Sidebar";
 
 export type FixtureState =
@@ -32,6 +32,7 @@ export type FixtureState =
   | "armed"
   | "closed"
   | "empty"
+  | "waitlist"
   | "keys"
   | "fresh-key"
   | "usage";
@@ -184,7 +185,7 @@ export function ConsoleFixtures({ state, theme }: { state: FixtureState; theme: 
   }, [theme]);
 
   const list: Sandbox[] =
-    state === "empty"
+    state === "empty" || state === "waitlist"
       ? []
       : state === "waiting"
         ? [E, A, B]
@@ -202,7 +203,7 @@ export function ConsoleFixtures({ state, theme }: { state: FixtureState; theme: 
           ? D
           : state === "failed"
             ? F
-            : state === "closed" || state === "empty"
+            : state === "closed" || state === "empty" || state === "waitlist"
               ? null
               : A;
   const section: Section = state === "keys" || state === "fresh-key" ? "keys" : state === "usage" ? "usage" : "phones";
@@ -238,6 +239,8 @@ export function ConsoleFixtures({ state, theme }: { state: FixtureState; theme: 
     main = <ClosedReceipt phone={A} billedMinutes={12.4} actions={18} onUsage={noop} onNew={noop} creating={false} />;
   } else if (state === "empty") {
     main = <FirstRun androidCloud creating={null} onCreate={noop} />;
+  } else if (state === "waitlist") {
+    main = <WaitlistFirstRun url="https://phoneuse.dev/waitlist" />;
   } else if (selected) {
     main = (
       <PhoneStage
@@ -273,6 +276,7 @@ export function ConsoleFixtures({ state, theme }: { state: FixtureState; theme: 
           selectedId={section === "phones" ? (selected?.id ?? null) : null}
           onSelect={noop}
           androidCloud
+          canCreate={state !== "waitlist"}
           creating={null}
           onCreate={noop}
           createFailure={createFailure}

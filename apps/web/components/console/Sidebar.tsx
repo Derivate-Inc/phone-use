@@ -34,6 +34,7 @@ export function Sidebar({
   selectedId,
   onSelect,
   androidCloud,
+  canCreate = true,
   creating,
   onCreate,
   createFailure,
@@ -50,6 +51,8 @@ export function Sidebar({
   selectedId: string | null;
   onSelect: (id: string) => void;
   androidCloud: boolean;
+  /** False while the account is on the cloud waitlist: no create buttons to press and be refused. */
+  canCreate?: boolean;
   creating: Platform | null;
   onCreate: (p: Platform) => void;
   createFailure: CreateFailure | null;
@@ -59,7 +62,7 @@ export function Sidebar({
   onToggleTheme: () => void;
   onSignOut: () => void;
 }) {
-  const platforms: Platform[] = androidCloud ? ["ios", "android"] : ["ios"];
+  const platforms: Platform[] = !canCreate ? [] : androidCloud ? ["ios", "android"] : ["ios"];
   return (
     <aside className="dash-side" aria-label="Console">
       <a className="logo dash-side-logo" href="https://www.phoneuse.dev">
@@ -108,7 +111,7 @@ export function Sidebar({
             ))}
           </ul>
         ) : (
-          loaded && <p className="dash-plist-empty">No phones running.</p>
+          loaded && <p className="dash-plist-empty">{canCreate ? "No phones running." : "Cloud phones: on the waitlist."}</p>
         )}
 
         <div className="dash-create">

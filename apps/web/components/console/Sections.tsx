@@ -55,6 +55,34 @@ export function FirstRun({
   );
 }
 
+/** What an account on the waitlist can run today, with no account at all. */
+const LOCAL_START = "curl -fsSL https://phoneuse.dev/install | bash\nopen -a Simulator\nphone-use observe";
+
+/** Zero phones, and the account cannot create one yet: say so, and say what works today. */
+export function WaitlistFirstRun({ url }: { url: string }) {
+  return (
+    <section className="dash-center" aria-labelledby="dash-first-h">
+      <h1 id="dash-first-h" tabIndex={-1}>
+        Cloud phones are on a waitlist
+      </h1>
+      <p>Your account is in line. We will email you when it can create cloud phones.</p>
+      <div className="dash-row">
+        <a className="dash-btn" href={url}>
+          Tell us what you would use one for
+        </a>
+      </div>
+      <p className="dash-waitlist-local">Until then, phone-use runs on your own machine with no account:</p>
+      <div className="dash-waitlist-snippet">
+        <pre className="dash-pre dash-snippet">{LOCAL_START}</pre>
+        <CopyButton text={LOCAL_START} ariaLabel="Copy the local quick start commands" />
+      </div>
+      <a className="dash-waitlist-docs" href="https://phoneuse.dev/docs/quickstart">
+        Local quick start
+      </a>
+    </section>
+  );
+}
+
 /** A terminal on this machine asked for a key (phone-use login). */
 export function CliApprove({
   port,
@@ -183,7 +211,10 @@ phone-use create ios`;
             </div>
           ) : (
             <div className="dash-keystate">
-              <p className="dash-muted">No key yet. You need one to use the CLI and SDK from anywhere.</p>
+              <p className="dash-muted">
+                No key yet. You need one to use cloud phones from the CLI and SDK. On your own machine, phone-use needs no
+                key.
+              </p>
               <button type="button" className="dash-btn" onClick={onGenerate}>
                 Generate key
               </button>

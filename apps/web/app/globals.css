@@ -365,6 +365,12 @@ kbd { font: 500 12px var(--font-mono); padding: 0 4px; border: 1px solid var(--l
 .dash-center h1:focus { outline: none; }
 .dash-center p { max-width: 40ch; color: var(--muted); }
 .dash-center .dash-row { justify-content: center; margin-top: 12px; }
+/* The waitlist first run: the local commands under the notice. */
+.dash-center .dash-waitlist-local { margin-top: 20px; }
+.dash-waitlist-snippet { display: flex; align-items: flex-start; gap: 8px; width: min(100%, 440px); text-align: left; }
+.dash-waitlist-snippet .dash-pre { flex: 1; min-width: 0; }
+.dash-waitlist-docs { font-size: 13px; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.dash-waitlist-docs:hover { color: var(--ink); }
 
 /* ── account sections ────────────────────────────────────────────────── */
 .dash-section { width: 100%; max-width: 1120px; padding: 48px; }

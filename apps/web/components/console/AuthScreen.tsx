@@ -13,9 +13,6 @@ export type Me = {
   waitlistUrl?: string;
 };
 
-// Android is offered only once an Android worker is deployed (see Dashboard).
-const PHONES = process.env.NEXT_PUBLIC_ANDROID_CLOUD === "1" ? "a real iPhone or Android phone" : "a real iPhone";
-
 export function AuthScreen({ api, onSignedIn }: { api: string; onSignedIn: (me: Me, signedUp: boolean) => void }) {
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
@@ -75,9 +72,12 @@ export function AuthScreen({ api, onSignedIn }: { api: string; onSignedIn: (me: 
       <aside className="dash-auth-visual" aria-hidden="true">
         <div className="dash-auth-statement">
           <h2>The mobile runtime for AI&nbsp;agents.</h2>
-          <p>Boot {PHONES} in the cloud, hand it to your agent, and watch it work, live.</p>
+          <p>
+            Free on your own machine, with no account. Cloud phones, which your agent drives while you watch live, are on
+            a waitlist.
+          </p>
         </div>
-        <p className="dash-auth-footnote">Ready in seconds &middot; live screen &middot; works with any agent</p>
+        <p className="dash-auth-footnote">Works with any agent &middot; live screen &middot; cloud phones by waitlist</p>
       </aside>
 
       <main className="dash-auth-page">
@@ -90,7 +90,9 @@ export function AuthScreen({ api, onSignedIn }: { api: string; onSignedIn: (me: 
           </a>
           <h1>{mode === "signin" ? "Welcome back." : "Create your account."}</h1>
           <p className="dash-auth-sub">
-            {mode === "signin" ? "Sign in to manage your cloud phones." : "Cloud phones for your agents, ready in seconds."}
+            {mode === "signin"
+              ? "Sign in to manage your cloud phones."
+              : "Cloud phones are on a waitlist, and an account puts you in line. On your own machine, phone-use needs no account."}
           </p>
 
           <button type="button" className="dash-btn-google" onClick={google}>
