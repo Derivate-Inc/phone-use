@@ -23,7 +23,13 @@ phone-use observe
 phone-use open "Weather"
 ```
 
-Give it to your agent:
+Or let your coding agent set itself up. Paste this into Claude Code, Codex or Cursor:
+
+```text
+Install phone-use with `curl -fsSL https://phoneuse.dev/install | bash` and add its skill with `npx skills add Derivate-Inc/phone-use-skills --yes`. If `phone-use` is not found afterwards, use the path the installer printed. Run `phone-use doctor`, then open the iOS Simulator (or run `phone-use connect android` for an Android device), run `phone-use observe`, and tell me what is on the screen.
+```
+
+The two pieces on their own:
 
 ```bash
 npx skills add Derivate-Inc/phone-use-skills                       # teach any skills-compatible agent the CLI
