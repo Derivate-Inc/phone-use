@@ -38,7 +38,8 @@
 - Any MCP client: `npx -y phone-use mcp` drives the local simulator. For a cloud phone, set PHONE_USE_SANDBOX_URL and PHONE_USE_SANDBOX_TOKEN (the console prints the config)
 - Claude Code: `claude mcp add --scope project phone-use -- npx -y phone-use mcp`
 - Built-in agent: `phone-use task "<goal>"` (needs ANTHROPIC_API_KEY)
-- Shell verbs: `phone-use observe | tap | type | scroll | goto | ask | toggle | search | skill | atlas`;
+- Shell verbs: `phone-use observe | tap | type | press | scroll | wait_for | handle_alert | goto | ask | toggle | search | batch | skill | atlas`;
+  `scroll down --until "<text>"` scrolls until the text is on screen, `wait_for --stable` waits until the screen stops changing;
   `--json` prints a machine-readable envelope; exit codes: 0 ok, 1 failed, 2 blocked, 3 confirmation required
 
 ## Links
