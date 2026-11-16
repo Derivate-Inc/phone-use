@@ -2,7 +2,7 @@
 
 Phone-use adds an execution and verification layer to an existing coding agent.
 Phone-use drives devices with its own layer: an XCTest runner on iOS simulators
-(`packages/sdk/ios-runner`, see [doc 42](42-own-device-layer.md)) and adb on
+(`packages/sdk/ios-runner`) and adb on
 Android. (Until 2026-11-04 the iOS machinery was Callstack's agent-device.)
 Phone-use does not replace your coding agent's repository editing, planning, or
 model choice.

@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const API_ORIGIN = process.env.PHONE_USE_API_ORIGIN ?? "https://api-production-a726.up.railway.app";
+const API_ORIGIN = process.env.PHONE_USE_API_ORIGIN ?? "https://api.phoneuse.dev";
 
 const nextConfig: NextConfig = {
   // The repo root has its own bun.lock; pin Turbopack's root to this app so it

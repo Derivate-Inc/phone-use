@@ -2,10 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
   TLS front for the worker (device RPC, /stream and video at
-  https://62-210-150-70.sslip.io/worker/*). Without it the worker still
+  https://ios-worker.example.com/worker/*). Without it the worker still
   heartbeats to the control plane, so phones get created, but nothing can
-  reach them. It was started by hand once and did not survive the
-  2026-11-07 reboot; as a LaunchDaemon it starts at boot like the worker.
+  reach them. As a LaunchDaemon it starts at boot, like the worker.
+  The paths below assume the host's user is `m1`, the default account on a
+  Scaleway Mac; change them for another user.
   Install: sudo cp to /Library/LaunchDaemons, chown root:wheel, chmod 644,
   sudo launchctl bootstrap system /Library/LaunchDaemons/com.phone-use.caddy.plist
 -->

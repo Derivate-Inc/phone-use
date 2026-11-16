@@ -1,8 +1,7 @@
 -- Multi-tenancy + metering.
 --
 -- Two gaps the v0 left open: one API token meant any caller could enumerate and
--- delete the whole fleet, and nothing recorded usage — which is odd for a service
--- whose entire thesis is a cost-per-hour advantage.
+-- delete the whole fleet, and nothing recorded usage.
 
 CREATE TABLE IF NOT EXISTS tenants (
   id TEXT PRIMARY KEY,

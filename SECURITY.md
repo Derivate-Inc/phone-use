@@ -4,6 +4,9 @@
 
 Pre-1.0: only the latest published minor of each package (`@phone-use/sdk`, `phone-use`) receives security fixes.
 
+The hosted service (api.phoneuse.dev, app.phoneuse.dev and the cloud phones)
+is in scope too; report issues with it the same way.
+
 ## Reporting a vulnerability
 
 Report privately — do not open a public issue:
@@ -31,8 +34,9 @@ notes unless you prefer otherwise.
 
 ## Supply-chain posture
 
-- **Exact pins.** Every dependency (runtime and dev) is pinned to an exact
-  version — no `^`/`~` ranges anywhere in the workspace.
+- **Exact pins in what we publish.** The two published packages
+  (`@phone-use/sdk`, `phone-use`) pin every dependency to an exact version.
+  The apps in `apps/` use ranges, resolved by the committed lockfile.
 - **Frozen installs in CI.** All CI and release jobs install with
   `bun install --frozen-lockfile`; a lockfile drift fails the build instead of
   silently resolving something new.

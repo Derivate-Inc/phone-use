@@ -1,6 +1,6 @@
 import type { NextConfig } from "next";
 
-const API_ORIGIN = process.env.PHONE_USE_API_ORIGIN ?? "https://api-production-a726.up.railway.app";
+const API_ORIGIN = process.env.PHONE_USE_API_ORIGIN ?? "https://api.phoneuse.dev";
 
 const nextConfig: NextConfig = {
   turbopack: { root: `${__dirname}/../..` },
