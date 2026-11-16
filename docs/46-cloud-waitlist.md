@@ -1,7 +1,7 @@
 # Cloud waitlist: what shipped and how to run it
 
-Status: **live on the hosted control plane since 2026-11-16.** The waitlist page itself is
-not deployed yet (see the end of this doc).
+Status: **live since 2026-11-16**: the gate on the hosted control plane, and the waitlist
+page at https://phoneuse.dev/waitlist.
 
 In one line: phone-use stays free on the user's own machine, and cloud phones go behind a
 waitlist that people meet when they run `create`.
@@ -122,8 +122,10 @@ Checked on the hosted service on 2026-11-16, after deploying:
 - An account minted unapproved for the check gets HTTP 403 `cloud_waitlist` and no phone.
 - Both workers stayed connected.
 
-Not done yet: the site has not been deployed, so the waitlist link returns 404 until it
-is. Android cloud creation was not exercised.
+- The waitlist page on the live site, in a real browser: a malformed email shows an error, and
+  a test entry showed the confirmation and reached the control plane.
+
+Android cloud creation was not exercised.
 
 Found while checking: `open -a Simulator && phone-use observe` fails on a cold start,
 because `open` returns before the simulator has booted; `observe` works a few seconds
