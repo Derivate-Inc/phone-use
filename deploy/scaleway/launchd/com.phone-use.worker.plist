@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.phone-use.worker</string>
+  <key>UserName</key><string>m1</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Users/m1/phone-use/deploy/scaleway/launchd/phone-use-worker-start</string>
+  </array>
+  <key>RunAtLoad</key><true/>
+  <key>KeepAlive</key><true/>
+  <key>ThrottleInterval</key><integer>15</integer>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>HOME</key><string>/Users/m1</string>
+    <key>PATH</key><string>/Users/m1/.bun/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>DEVELOPER_DIR</key><string>/Applications/Xcode.app/Contents/Developer</string>
+  </dict>
+  <key>StandardOutPath</key><string>/Users/m1/Library/Logs/phone-use-worker.log</string>
+  <key>StandardErrorPath</key><string>/Users/m1/Library/Logs/phone-use-worker.log</string>
+</dict>
+</plist>

@@ -1,0 +1,46 @@
+{
+  "name": "phone-use-monorepo",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "typecheck": "turbo run typecheck",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "test": "vitest run",
+    "build": "turbo run build",
+    "check:publish": "publint packages/sdk && attw --pack --profile esm-only packages/sdk && publint packages/phone-use && attw --pack --profile esm-only packages/phone-use",
+    "check:deps": "bun tools/dep-guard.ts",
+    "docs:api": "typedoc --options packages/sdk/typedoc.json",
+    "docs:dev": "bun run --cwd apps/landing dev",
+    "docs:validate": "bun run --cwd apps/landing build",
+    "version": "changeset version && bun tools/sync-versions.ts",
+    "release": "changeset publish",
+    "mcp": "bun packages/phone-use/src/index.ts mcp",
+    "task": "bun packages/phone-use/src/index.ts task",
+    "bench": "bun packages/phone-use/src/index.ts bench",
+    "bench:agent": "bun packages/phone-use/scripts/bench-agent.ts",
+    "smoke": "bun packages/phone-use/scripts/smoke-sdk.ts && bun packages/phone-use/scripts/smoke-recorder-mcp.ts && bun packages/phone-use/scripts/smoke-atlas.ts && bun packages/phone-use/scripts/smoke-skill.ts",
+    "smoke:multi-phone": "bun packages/phone-use/scripts/smoke-multi-phone.ts",
+    "dev:cloud": "bun scripts/dev-cloud.ts",
+    "test:api": "cd apps/api && bun test",
+    "stranger": "bun scripts/stranger-test.ts"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "0.18.5",
+    "@biomejs/biome": "2.5.5",
+    "@changesets/cli": "2.31.1",
+    "@types/bun": "1.3.14",
+    "@types/node": "22.20.1",
+    "publint": "0.3.22",
+    "tsdown": "0.22.13",
+    "typedoc": "0.28.20",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10",
+    "turbo": "^2.5.0"
+  },
+  "packageManager": "bun@1.3.14"
+}

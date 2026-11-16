@@ -1,0 +1,579 @@
+/* Capability cells. The grid is ruled and white; each stage is transparent,
+   so the cell is its ground. Pictures sit on the cell at its 28px gutter and
+   fade out at its foot. One mono chip names the command behind a picture. */
+
+.cap-observe .ss-stage,
+.cap-tap .ss-stage,
+.cap-goto .ss-stage,
+.cap-skill .ss-stage,
+.cap-agents .ss-stage {
+  overflow: hidden;
+  background: transparent;
+  --cap-gutter: 28px;
+  --cap-ink: #111113;
+  --cap-text: #3f3f46;
+  --cap-muted: #71717a;
+  --cap-faint: #a1a1aa;
+  --cap-line: #ececef;
+  --cap-soft: #f4f4f5;
+  --cap-accent: #6c4cff;
+  --cap-ok: #16a34a;
+}
+
+/* The one picture that runs off its cell's foot dissolves into it */
+.cap-observe .ss-stage {
+  -webkit-mask-image: linear-gradient(to bottom, #000 72%, transparent);
+  mask-image: linear-gradient(to bottom, #000 72%, transparent);
+}
+
+/* The command chip */
+.cap-observe .cap-cmd,
+.cap-goto .cap-cmd,
+.cap-skill .cap-cmd {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--cap-soft);
+  color: var(--cap-ink);
+  font: 450 12px/1 var(--ss-mono);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.cap-observe .cap-cmd span,
+.cap-goto .cap-cmd span,
+.cap-skill .cap-cmd span {
+  color: var(--cap-faint);
+}
+
+.cap-observe .cap-dim,
+.cap-goto .cap-dim {
+  color: var(--cap-faint);
+}
+
+.cap-tap code,
+.cap-skill code {
+  color: var(--cap-ink);
+  font: 450 12.5px/1.4 var(--ss-mono);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Success: one green disc with a tick */
+.cap-goto .cap-check,
+.cap-skill .cap-check {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1.5px #e4e4e7;
+  color: #fff;
+  transition:
+    background-color 0.22s,
+    box-shadow 0.22s;
+}
+
+.cap-goto .cap-check svg,
+.cap-skill .cap-check svg {
+  opacity: 0;
+  transition: opacity 0.22s;
+}
+
+.cap-goto .cap-arrived[data-on] .cap-check,
+.cap-skill li[data-done] .cap-check {
+  background: var(--cap-ok);
+  box-shadow: inset 0 0 0 1.5px var(--cap-ok);
+}
+
+.cap-goto .cap-arrived[data-on] .cap-check svg,
+.cap-skill li[data-done] .cap-check svg {
+  opacity: 1;
+}
+
+/* ── observe ──────────────────────────────────────────────────────────── */
+
+.cap-observe .cap-phone {
+  position: absolute;
+  top: 0;
+  left: var(--cap-gutter);
+  will-change: transform;
+  box-shadow:
+    0 0 0 1px rgba(17, 17, 19, 0.04),
+    0 24px 36px -26px rgba(17, 17, 19, 0.38),
+    0 2px 6px rgba(17, 17, 19, 0.08);
+}
+
+/* The capture without its own status bar: the phone draws that */
+.cap-observe .cap-shot {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 402px;
+  height: 870px;
+  object-fit: cover;
+  clip-path: inset(54px 0 0 0);
+}
+
+/* An element's frame, as observe reports it: the accent's one job */
+.cap-observe .cap-box {
+  position: absolute;
+  z-index: 1;
+  border-radius: 9px;
+  box-shadow: inset 0 0 0 2px var(--cap-accent);
+  background: color-mix(in srgb, var(--cap-accent) 12%, transparent);
+  opacity: 0;
+  scale: 1.06;
+  transition:
+    opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+    scale 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.cap-observe .cap-box[data-on] {
+  opacity: 1;
+  scale: 1;
+}
+
+/* The printed tree, straight on the cell beside the phone */
+.cap-observe .cap-tree {
+  position: absolute;
+  top: 28px;
+  left: 352px;
+  right: 0;
+}
+
+.cap-observe .cap-tree-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+  padding-left: 2px;
+}
+
+.cap-observe .cap-line {
+  color: var(--cap-ink);
+  font: 450 11.5px/1.45 var(--ss-mono);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(4px);
+  will-change: transform;
+  transition:
+    opacity 0.28s cubic-bezier(0.25, 0.8, 0.25, 1),
+    transform 0.36s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.cap-observe .cap-line[data-on] {
+  opacity: 1;
+  transform: none;
+}
+
+.cap-observe .cap-ref {
+  color: var(--cap-accent);
+  font-weight: 600;
+}
+
+.cap-observe .ss-stage[data-layout='compact'] {
+  --cap-gutter: 20px;
+}
+
+.cap-observe .ss-stage[data-layout='compact'] .cap-phone {
+  left: 46px;
+}
+
+.cap-observe .ss-stage[data-layout='compact'] .cap-tree {
+  top: 300px;
+  left: var(--cap-gutter);
+  right: var(--cap-gutter);
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 0 0 1px var(--cap-line), 0 16px 32px -20px rgba(17, 17, 19, 0.2);
+}
+
+.cap-observe .ss-stage[data-layout='compact'] .cap-line {
+  font-size: 11.5px;
+}
+
+/* ── tap ──────────────────────────────────────────────────────────────── */
+
+/* An iOS form, on its own grouped ground */
+.cap-tap .cap-form {
+  position: absolute;
+  top: 0;
+  left: var(--cap-gutter);
+  right: var(--cap-gutter);
+  padding: 12px;
+  border-radius: 18px;
+  background: #f2f2f7;
+  font-family: -apple-system, 'SF Pro Text', system-ui, sans-serif;
+}
+
+.cap-tap .cap-form-cell {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 10px 0 14px;
+  border-radius: 12px;
+  background: #fff;
+  color: var(--cap-ink);
+  font-size: 15px;
+}
+
+.cap-tap .cap-switch {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  border-radius: 16px;
+  background: #e5e5ea;
+  transition: background-color 0.25s;
+}
+
+.cap-tap .cap-switch span {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+  transition: translate 0.3s cubic-bezier(0.3, 0.75, 0.1, 1);
+}
+
+.cap-tap .cap-switch[data-on] {
+  background: #34c759;
+}
+
+.cap-tap .cap-switch[data-on] span {
+  translate: 20px 0;
+}
+
+.cap-tap .cap-continue {
+  display: grid;
+  place-items: center;
+  height: 44px;
+  margin-top: 10px;
+  border-radius: 22px;
+  background: #c4d8f8;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background-color 0.25s;
+}
+
+.cap-tap .cap-continue[data-ready] {
+  background: #0a84ff;
+}
+
+.cap-tap .cap-continue[data-pressed] {
+  filter: brightness(0.94);
+}
+
+.cap-tap .cap-rows {
+  position: absolute;
+  top: 150px;
+  left: var(--cap-gutter);
+  right: var(--cap-gutter);
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cap-tap .cap-rows li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 38px;
+  opacity: 0;
+  transform: translateY(4px);
+  will-change: transform;
+  transition:
+    opacity 0.28s cubic-bezier(0.25, 0.8, 0.25, 1),
+    transform 0.36s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.cap-tap .cap-rows li + li {
+  border-top: 1px solid var(--cap-line);
+}
+
+.cap-tap .cap-rows li[data-on] {
+  opacity: 1;
+  transform: none;
+}
+
+.cap-tap .cap-pill {
+  padding: 4px 9px;
+  border-radius: 999px;
+  font: 550 11.5px/1.2 var(--ss-font);
+}
+
+.cap-tap .cap-pill[data-tone='ok'] {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.cap-tap .cap-pill[data-tone='warn'] {
+  background: #fef3c7;
+  color: #a16207;
+}
+
+/* ── goto ─────────────────────────────────────────────────────────────── */
+
+/* Graph paper behind the map, fading at the edges */
+.cap-goto .cap-dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, #d4d4d8 1px, transparent 1.2px);
+  background-size: 16px 16px;
+  background-position: 6px 6px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 65% at 50% 55%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 65% at 50% 55%, #000 30%, transparent 75%);
+}
+
+.cap-goto .cap-goto-head {
+  position: absolute;
+  top: 0;
+  left: var(--cap-gutter);
+}
+
+.cap-goto .cap-map {
+  position: absolute;
+  top: 52px;
+  left: var(--cap-gutter);
+  width: 312px;
+  height: 160px;
+}
+
+.cap-goto .cap-edges {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.cap-goto .cap-edge {
+  fill: none;
+  stroke: #d4d4d8;
+  stroke-width: 1.25;
+}
+
+.cap-goto .cap-edge-lit {
+  fill: none;
+  stroke: var(--cap-ink);
+  stroke-width: 1.75;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.45s cubic-bezier(0.45, 0, 0.1, 1);
+}
+
+.cap-goto .cap-edge-lit[data-on] {
+  stroke-dashoffset: 0;
+}
+
+.cap-goto .cap-node {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  width: 80px;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 0 0 1px #e4e4e7, 0 1px 2px rgba(17, 17, 19, 0.05);
+  color: var(--cap-muted);
+  font: 500 12px/1 var(--ss-font);
+  white-space: nowrap;
+  transition:
+    background-color 0.25s,
+    color 0.25s,
+    box-shadow 0.25s;
+}
+
+.cap-goto .cap-node[data-on] {
+  background: var(--cap-ink);
+  box-shadow: 0 0 0 1px var(--cap-ink), 0 6px 14px -8px rgba(17, 17, 19, 0.6);
+  color: #fff;
+}
+
+.cap-goto .cap-arrived {
+  position: absolute;
+  left: var(--cap-gutter);
+  right: var(--cap-gutter);
+  bottom: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--cap-ink);
+  font: 500 13px/1 var(--ss-font);
+  opacity: 0;
+  transition: opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.cap-goto .cap-arrived[data-on] {
+  opacity: 1;
+}
+
+.cap-goto .cap-arrived .cap-dim {
+  margin-left: auto;
+  font: 450 12px/1 var(--ss-mono);
+}
+
+/* ── skill ────────────────────────────────────────────────────────────── */
+
+.cap-skill .cap-skill-head {
+  position: absolute;
+  top: 0;
+  left: var(--cap-gutter);
+}
+
+/* A run, step by step: a rail joins the checks */
+.cap-skill .cap-steps {
+  position: absolute;
+  top: 48px;
+  left: var(--cap-gutter);
+  right: var(--cap-gutter);
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.cap-skill .cap-steps::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  bottom: 18px;
+  left: 8.5px;
+  width: 1px;
+  background: var(--cap-line);
+}
+
+.cap-skill .cap-steps li {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 38px;
+}
+
+.cap-skill .cap-steps .cap-check {
+  background: #fff;
+}
+
+.cap-skill .cap-steps li code {
+  color: var(--cap-faint);
+  transition: color 0.2s;
+}
+
+.cap-skill .cap-steps li[data-done] code {
+  color: var(--cap-ink);
+}
+
+/* ── agents ───────────────────────────────────────────────────────────── */
+
+.cap-agents .cap-links {
+  position: absolute;
+  inset: 0;
+  overflow: visible;
+}
+
+.cap-agents .cap-links path {
+  fill: none;
+  stroke: #d4d4d8;
+  stroke-width: 1.25;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 0.6s cubic-bezier(0.45, 0, 0.1, 1);
+}
+
+.cap-agents .cap-links path[data-on] {
+  stroke-dashoffset: 0;
+}
+
+.cap-agents .cap-chip {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0 0 0 1px #e4e4e7, 0 1px 2px rgba(17, 17, 19, 0.05);
+  color: var(--cap-ink);
+  font: 500 13.5px/1 var(--ss-font);
+  white-space: nowrap;
+  transition: opacity 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.cap-agents .cap-chip svg {
+  color: var(--cap-muted);
+}
+
+.cap-agents .cap-chip img {
+  opacity: 0.9;
+}
+
+.cap-agents .cap-hub {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--cap-ink);
+  color: #fff;
+  font: 500 13px/1 var(--ss-mono);
+  letter-spacing: -0.01em;
+  box-shadow: 0 10px 24px -14px rgba(17, 17, 19, 0.7);
+  transition: transform 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Before their beat, the phones wait quietly */
+.cap-agents .cap-chip[data-side='phone']:not([data-on]) {
+  opacity: 0.35;
+}
+
+.cap-agents .cap-agents-compact {
+  position: absolute;
+  inset: 8px 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cap-agents .cap-agents-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+
+.cap-agents .cap-agents-compact .cap-chip,
+.cap-agents .cap-agents-compact .cap-hub {
+  position: static;
+  height: 36px;
+  font-size: 13px;
+}
+
+.cap-agents .cap-agents-compact .cap-chip {
+  padding: 0 12px;
+}
+
+.cap-agents .cap-agents-compact .cap-hub {
+  padding: 0 16px;
+}
+
+.cap-agents .cap-stem {
+  width: 1px;
+  height: 18px;
+  background: #d4d4d8;
+}

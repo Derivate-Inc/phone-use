@@ -1,0 +1,10 @@
+# phone-use control plane on Railway (see docs/34-deployment.md).
+# Volume mounted at /data holds the SQLite DB; Litestream activates when
+# LITESTREAM_REPLICA_URL is set.
+[build]
+builder = "dockerfile"
+dockerfilePath = "apps/api/Dockerfile"
+
+[deploy]
+healthcheckPath = "/healthz"
+restartPolicyType = "on_failure"

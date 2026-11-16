@@ -1,0 +1,619 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-08T00:40:44Z",
+  "title": "Design System: Phone Use Console",
+  "extensions": {
+    "colorMeta": {
+      "ground": {
+        "role": "neutral",
+        "displayName": "Ground",
+        "canonical": "#fafafa"
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Surface",
+        "canonical": "#ffffff"
+      },
+      "ink": {
+        "role": "primary",
+        "displayName": "Ink",
+        "canonical": "#111113",
+        "tonalRamp": [
+          "oklch(15% 0.002 286)",
+          "oklch(25% 0.003 286)",
+          "oklch(37% 0.004 286)",
+          "oklch(48% 0.004 286)",
+          "oklch(60% 0.004 286)",
+          "oklch(72% 0.004 286)",
+          "oklch(84% 0.003 286)",
+          "oklch(95% 0.002 286)"
+        ]
+      },
+      "ink-2": {
+        "role": "primary",
+        "displayName": "Second Ink",
+        "canonical": "#3b3b42"
+      },
+      "ink-hover": {
+        "role": "primary",
+        "displayName": "Ink Hover",
+        "canonical": "#2b2b30"
+      },
+      "on-ink": {
+        "role": "primary",
+        "displayName": "On Ink",
+        "canonical": "#ffffff"
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "canonical": "#6a6a73",
+        "tonalRamp": [
+          "oklch(15% 0.008 286)",
+          "oklch(25% 0.011 286)",
+          "oklch(37% 0.014 286)",
+          "oklch(48% 0.014 286)",
+          "oklch(60% 0.014 286)",
+          "oklch(72% 0.014 286)",
+          "oklch(84% 0.011 286)",
+          "oklch(95% 0.008 286)"
+        ]
+      },
+      "faint": {
+        "role": "neutral",
+        "displayName": "Faint",
+        "canonical": "#a4a4ad"
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#ececef"
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Strong Hairline",
+        "canonical": "#dcdce1"
+      },
+      "wash": {
+        "role": "neutral",
+        "displayName": "Wash",
+        "canonical": "color-mix(in srgb, #111113 5%, transparent)"
+      },
+      "violet": {
+        "role": "secondary",
+        "displayName": "Held Violet",
+        "canonical": "#6c4cff",
+        "tonalRamp": [
+          "oklch(15% 0.137 283)",
+          "oklch(25% 0.199 283)",
+          "oklch(37% 0.249 283)",
+          "oklch(48% 0.249 283)",
+          "oklch(60% 0.249 283)",
+          "oklch(72% 0.249 283)",
+          "oklch(84% 0.199 283)",
+          "oklch(95% 0.137 283)"
+        ]
+      },
+      "violet-ink": {
+        "role": "secondary",
+        "displayName": "Violet Ink",
+        "canonical": "#5b3df5"
+      },
+      "green-ink": {
+        "role": "tertiary",
+        "displayName": "Working Green",
+        "canonical": "#15803d",
+        "tonalRamp": [
+          "oklch(15% 0.075 150)",
+          "oklch(25% 0.110 150)",
+          "oklch(37% 0.137 150)",
+          "oklch(48% 0.137 150)",
+          "oklch(60% 0.137 150)",
+          "oklch(72% 0.137 150)",
+          "oklch(84% 0.110 150)",
+          "oklch(95% 0.075 150)"
+        ]
+      },
+      "amber": {
+        "role": "tertiary",
+        "displayName": "Caution Amber",
+        "canonical": "#b45309",
+        "tonalRamp": [
+          "oklch(15% 0.080 49)",
+          "oklch(25% 0.116 49)",
+          "oklch(37% 0.146 49)",
+          "oklch(48% 0.146 49)",
+          "oklch(60% 0.146 49)",
+          "oklch(72% 0.146 49)",
+          "oklch(84% 0.116 49)",
+          "oklch(95% 0.080 49)"
+        ]
+      },
+      "red": {
+        "role": "tertiary",
+        "displayName": "Danger Red",
+        "canonical": "#dc2626",
+        "tonalRamp": [
+          "oklch(15% 0.118 27)",
+          "oklch(25% 0.172 27)",
+          "oklch(37% 0.215 27)",
+          "oklch(48% 0.215 27)",
+          "oklch(60% 0.215 27)",
+          "oklch(72% 0.215 27)",
+          "oklch(84% 0.172 27)",
+          "oklch(95% 0.118 27)"
+        ]
+      },
+      "red-fill": {
+        "role": "tertiary",
+        "displayName": "Danger Fill",
+        "canonical": "#dc2626"
+      },
+      "red-fill-hover": {
+        "role": "tertiary",
+        "displayName": "Danger Fill Hover",
+        "canonical": "#b91c1c"
+      },
+      "night": {
+        "role": "night",
+        "displayName": "Night",
+        "canonical": "#111114"
+      },
+      "night-ink": {
+        "role": "night",
+        "displayName": "Night Ink",
+        "canonical": "#ececf1"
+      },
+      "bezel": {
+        "role": "night",
+        "displayName": "Bezel",
+        "canonical": "#0b0b0d"
+      },
+      "bezel-ring": {
+        "role": "night",
+        "displayName": "Bezel Ring",
+        "canonical": "#cfcfd6"
+      },
+      "live-green": {
+        "role": "tertiary",
+        "displayName": "Live Green",
+        "canonical": "#16a34a"
+      },
+      "screen-off": {
+        "role": "night",
+        "displayName": "Screen Off",
+        "canonical": "#1a1a1f"
+      },
+      "boot-screen": {
+        "role": "night",
+        "displayName": "Boot Screen",
+        "canonical": "#17171c"
+      },
+      "boot-mark": {
+        "role": "night",
+        "displayName": "Boot Mark",
+        "canonical": "#4a4a54"
+      },
+      "boot-runner": {
+        "role": "night",
+        "displayName": "Boot Runner",
+        "canonical": "#d4d4dc"
+      },
+      "code-selection": {
+        "role": "night",
+        "displayName": "Code Selection",
+        "canonical": "rgba(154, 134, 255, 0.45)"
+      },
+      "auth-night": {
+        "role": "night",
+        "displayName": "Auth Night",
+        "canonical": "#101014"
+      },
+      "ground-dark": {
+        "role": "neutral",
+        "displayName": "Ground (dark)",
+        "canonical": "#0d0d10"
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "Surface (dark)",
+        "canonical": "#141417"
+      },
+      "ink-dark": {
+        "role": "primary",
+        "displayName": "Ink (dark)",
+        "canonical": "#ececf1"
+      },
+      "ink-2-dark": {
+        "role": "primary",
+        "displayName": "Second Ink (dark)",
+        "canonical": "#c9c9d1"
+      },
+      "ink-hover-dark": {
+        "role": "primary",
+        "displayName": "Ink Hover (dark)",
+        "canonical": "#ffffff"
+      },
+      "on-ink-dark": {
+        "role": "primary",
+        "displayName": "On Ink (dark)",
+        "canonical": "#111113"
+      },
+      "muted-dark": {
+        "role": "neutral",
+        "displayName": "Muted (dark)",
+        "canonical": "#9d9da8"
+      },
+      "faint-dark": {
+        "role": "neutral",
+        "displayName": "Faint (dark)",
+        "canonical": "#55555f"
+      },
+      "line-dark": {
+        "role": "neutral",
+        "displayName": "Hairline (dark)",
+        "canonical": "#232329"
+      },
+      "line-strong-dark": {
+        "role": "neutral",
+        "displayName": "Strong Hairline (dark)",
+        "canonical": "#2f2f37"
+      },
+      "wash-dark": {
+        "role": "neutral",
+        "displayName": "Wash (dark)",
+        "canonical": "rgba(255, 255, 255, 0.05)"
+      },
+      "violet-dark": {
+        "role": "secondary",
+        "displayName": "Held Violet (dark)",
+        "canonical": "#9a86ff",
+        "tonalRamp": [
+          "oklch(15% 0.095 289)",
+          "oklch(25% 0.138 289)",
+          "oklch(37% 0.173 289)",
+          "oklch(48% 0.173 289)",
+          "oklch(60% 0.173 289)",
+          "oklch(72% 0.173 289)",
+          "oklch(84% 0.138 289)",
+          "oklch(95% 0.095 289)"
+        ]
+      },
+      "violet-ink-dark": {
+        "role": "secondary",
+        "displayName": "Violet Ink (dark)",
+        "canonical": "#b3a4ff"
+      },
+      "green-ink-dark": {
+        "role": "tertiary",
+        "displayName": "Working Green (dark)",
+        "canonical": "#5fdc8c",
+        "tonalRamp": [
+          "oklch(15% 0.088 153)",
+          "oklch(25% 0.128 153)",
+          "oklch(37% 0.160 153)",
+          "oklch(48% 0.160 153)",
+          "oklch(60% 0.160 153)",
+          "oklch(72% 0.160 153)",
+          "oklch(84% 0.128 153)",
+          "oklch(95% 0.088 153)"
+        ]
+      },
+      "amber-dark": {
+        "role": "tertiary",
+        "displayName": "Caution Amber (dark)",
+        "canonical": "#f0a43a",
+        "tonalRamp": [
+          "oklch(15% 0.081 71)",
+          "oklch(25% 0.117 71)",
+          "oklch(37% 0.146 71)",
+          "oklch(48% 0.146 71)",
+          "oklch(60% 0.146 71)",
+          "oklch(72% 0.146 71)",
+          "oklch(84% 0.117 71)",
+          "oklch(95% 0.081 71)"
+        ]
+      },
+      "red-dark": {
+        "role": "tertiary",
+        "displayName": "Danger Red (dark)",
+        "canonical": "#ff6b5b",
+        "tonalRamp": [
+          "oklch(15% 0.101 29)",
+          "oklch(25% 0.147 29)",
+          "oklch(37% 0.184 29)",
+          "oklch(48% 0.184 29)",
+          "oklch(60% 0.184 29)",
+          "oklch(72% 0.184 29)",
+          "oklch(84% 0.147 29)",
+          "oklch(95% 0.101 29)"
+        ]
+      },
+      "night-dark": {
+        "role": "night",
+        "displayName": "Night (dark)",
+        "canonical": "#08080a"
+      },
+      "bezel-dark": {
+        "role": "night",
+        "displayName": "Bezel (dark)",
+        "canonical": "#050506"
+      },
+      "bezel-ring-dark": {
+        "role": "night",
+        "displayName": "Bezel Ring (dark)",
+        "canonical": "#34343c"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "The auth statement only; never inside the console shell."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "First-run heading, closed receipt, API key and Usage headings."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Device name in the stage header; failed-phone heading."
+      },
+      "heading": {
+        "displayName": "Heading",
+        "purpose": "Panel headings, banner headings, \"Phones\" in the sidebar, the current bottom link."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "14px base: activity sentences, stage meta, section intros, table cells."
+      },
+      "ui": {
+        "displayName": "UI",
+        "purpose": "Button labels, phone names, client tabs."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "State words, short IDs, times, hints, the live note; 500 for table headers, create and copy buttons."
+      },
+      "mono": {
+        "displayName": "Mono",
+        "purpose": "Machine values only: IDs, config, keys, file and variable names, kbd. Not times."
+      }
+    },
+    "shadows": [
+      {
+        "name": "focus-ring",
+        "value": "0 0 0 3px color-mix(in srgb, var(--violet) 14%, transparent)",
+        "purpose": "The only box-shadow in the app: focused inputs, with a violet border."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "The boot runner (--ease)."
+      },
+      {
+        "name": "dash-pulse",
+        "value": "1.6s ease-in-out infinite; opacity 0.4 at 50%",
+        "purpose": "The live dot, the amber waiting pulse and the booting thumbnail bar; stops when the stream is stale."
+      },
+      {
+        "name": "dash-boot",
+        "value": "1.5s var(--ease) infinite; translateX(-100%) to translateX(230%)",
+        "purpose": "The progress runner on a phone with no stream yet."
+      },
+      {
+        "name": "dash-shimmer",
+        "value": "1.4s linear infinite; 200% gradient sweep",
+        "purpose": "The stage skeleton on first load."
+      },
+      {
+        "name": "state-transition",
+        "value": "0.12s ease on background and border-color",
+        "purpose": "Every hover and pressed state change."
+      },
+      {
+        "name": "control-outline",
+        "value": "outline-color 0.15s ease",
+        "purpose": "The 2px violet outline (offset 4px) around the live frame in control mode."
+      },
+      {
+        "name": "stale-dim",
+        "value": "opacity 0.3s ease to 0.45",
+        "purpose": "The live screen when the stream is not live."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "animation: none !important; transition: none !important",
+        "purpose": "prefers-reduced-motion kill switch on everything."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "shell-collapse",
+        "value": "960px"
+      },
+      {
+        "name": "auth-collapse",
+        "value": "880px"
+      },
+      {
+        "name": "stage-actions-wrap",
+        "value": "560px"
+      },
+      {
+        "name": "wide-only",
+        "value": "961px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one main action of a view. Same 32px shape as every other button.",
+      "html": "<button class=\"ds-btn\">Copy config</button>",
+      "css": ".ds-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 8px; font-size: 14px; font-weight: 500; line-height: 1; white-space: nowrap; transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease; background: var(--ink, #111113); border-color: var(--ink, #111113); color: var(--on-ink, #ffffff); } .ds-btn:hover:not(:disabled) { background: var(--ink-hover, #2b2b30); border-color: var(--ink-hover, #2b2b30); } .ds-btn:disabled { opacity: 0.5; } .ds-btn:focus-visible { outline: 2px solid var(--violet, #6c4cff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button and Toggle",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Bordered secondary action; as a toggle (aria-pressed) its border turns ink, which is how Take control becomes Hand back.",
+      "html": "<span style=\"display:flex;gap:8px\"><button class=\"ds-btn2\">Take control</button><button class=\"ds-btn2\" aria-pressed=\"true\">Hand back</button></span>",
+      "css": ".ds-btn2 { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 8px; font-size: 14px; font-weight: 500; line-height: 1; white-space: nowrap; transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease; background: var(--surface, #ffffff); border-color: var(--line-strong, #dcdce1); color: var(--ink, #111113); } .ds-btn2:hover:not(:disabled) { background: var(--ground, #fafafa); border-color: var(--faint, #a4a4ad); } .ds-btn2[aria-pressed=\"true\"] { border-color: var(--ink, #111113); } .ds-btn2:disabled { opacity: 0.5; } .ds-btn2:focus-visible { outline: 2px solid var(--violet, #6c4cff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Guarded Close",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "The secondary shape with red text; the first click arms it (red fill, \"Confirm close\"), the second closes, and it disarms after 4 s.",
+      "html": "<span style=\"display:flex;gap:8px\"><button class=\"ds-danger\">Close</button><button class=\"ds-danger is-armed\">Confirm close</button></span>",
+      "css": ".ds-danger { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 8px; font-size: 14px; font-weight: 500; line-height: 1; white-space: nowrap; transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease; background: var(--surface, #ffffff); border-color: var(--line-strong, #dcdce1); color: var(--red, #dc2626); } .ds-danger:hover:not(:disabled) { background: color-mix(in srgb, var(--red, #dc2626) 6%, var(--surface, #ffffff)); border-color: color-mix(in srgb, var(--red, #dc2626) 35%, var(--line-strong, #dcdce1)); } .ds-danger.is-armed { background: var(--red-fill, #dc2626); border-color: var(--red-fill, #dc2626); color: #ffffff; } .ds-danger:focus-visible { outline: 2px solid var(--violet, #6c4cff); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Surface field with a strong hairline; faint border on hover; violet border plus the 14% focus ring on focus.",
+      "html": "<input class=\"ds-input\" placeholder=\"Text to paste\" aria-label=\"Text to paste\">",
+      "css": ".ds-input { width: 240px; padding: 0.52rem 0.7rem; border: 1px solid var(--line-strong, #dcdce1); border-radius: 8px; background: var(--surface, #ffffff); color: var(--ink, #111113); font: inherit; font-size: 14px; transition: border-color 0.12s ease, box-shadow 0.12s ease; } .ds-input::placeholder { color: var(--muted, #6a6a73); } .ds-input:hover { border-color: var(--faint, #a4a4ad); } .ds-input:focus { outline: none; border-color: var(--violet, #6c4cff); box-shadow: 0 0 0 3px color-mix(in srgb, var(--violet, #6c4cff) 14%, transparent); }"
+    },
+    {
+      "name": "Sidebar Phone List",
+      "kind": "nav",
+      "refersTo": "phone-row",
+      "description": "\"Phones\" heads the list with plain create buttons; each phone is a true-ratio thumbnail, name, short id and one state word. Only working (green-ink) and failed (red) take color; selection is a wash.",
+      "html": "<nav class=\"ds-phones\"><div class=\"ds-phones-head\"><button class=\"ds-phones-title\" aria-current=\"page\">Phones</button><button class=\"ds-newbtn\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><path d=\"M8 3.5v9M3.5 8h9\"/></svg>iPhone</button></div><ul class=\"ds-plist\"><li><button class=\"ds-prow\" aria-current=\"true\"><span class=\"ds-thumb\"></span><span class=\"ds-prow-text\"><span class=\"ds-prow-name\">iPhone <span class=\"ds-prow-id\">7f3k</span></span><span class=\"ds-prow-state is-ok\">working</span></span></button></li><li><button class=\"ds-prow\"><span class=\"ds-thumb\"></span><span class=\"ds-prow-text\"><span class=\"ds-prow-name\">iPhone <span class=\"ds-prow-id\">c41e</span></span><span class=\"ds-prow-state\">idle</span></span></button></li><li><button class=\"ds-prow\"><span class=\"ds-thumb is-booting\"><i></i></span><span class=\"ds-prow-text\"><span class=\"ds-prow-name\">iPhone <span class=\"ds-prow-id\">5d9a</span></span><span class=\"ds-prow-state\">starting</span></span></button></li></ul></nav>",
+      "css": ".ds-phones { display: grid; gap: 8px; width: 208px; padding: 0; background: var(--surface, #ffffff); font-size: 14px; } .ds-phones-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-left: 8px; } .ds-phones-title { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: var(--ink, #111113); cursor: pointer; } .ds-newbtn { display: inline-flex; align-items: center; gap: 4px; border: 0; border-radius: 6px; background: none; color: var(--muted, #6a6a73); padding: 4px 8px; font: inherit; font-size: 12px; font-weight: 500; cursor: pointer; } .ds-newbtn svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; } .ds-newbtn:hover { background: var(--wash, rgba(17,17,19,0.05)); color: var(--ink, #111113); } .ds-plist { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; } .ds-prow { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 12px; align-items: center; width: 100%; padding: 8px; border: 0; border-radius: 8px; background: none; color: var(--ink, #111113); font: inherit; text-align: left; cursor: pointer; transition: background 0.12s ease; } .ds-prow:hover, .ds-prow[aria-current=\"true\"] { background: var(--wash, rgba(17,17,19,0.05)); } .ds-prow:focus-visible { outline: 2px solid var(--violet, #6c4cff); outline-offset: 2px; } .ds-thumb { width: 28px; aspect-ratio: 402 / 874; display: grid; place-items: center; border-radius: 5px; background: var(--night, #111114); border: 1px solid var(--line-strong, #dcdce1); } .ds-thumb.is-booting i { width: 50%; height: 2px; border-radius: 2px; background: rgba(255,255,255,0.3); animation: ds-pulse 1.6s ease-in-out infinite; } @keyframes ds-pulse { 50% { opacity: 0.4; } } .ds-prow-text { display: grid; gap: 2px; min-width: 0; } .ds-prow-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .ds-prow-id { font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; font-weight: 400; color: var(--muted, #6a6a73); } .ds-prow-state { font-size: 12px; color: var(--muted, #6a6a73); } .ds-prow-state.is-ok { color: var(--green-ink, #15803d); } .ds-prow-state.is-bad { color: var(--red, #dc2626); }"
+    },
+    {
+      "name": "Stage Header",
+      "kind": "custom",
+      "refersTo": "stage-header",
+      "description": "One line: 18px name, mono short id with an icon copy, \"· 48 min left\" (amber under five minutes), then Take control and Close pushed right.",
+      "html": "<header class=\"ds-stage-head\"><h1>iPhone</h1><span class=\"ds-stage-id\">7f3k2m9a4c1e<button class=\"ds-iconbtn\" aria-label=\"Copy phone ID\"><svg viewBox=\"0 0 16 16\" aria-hidden=\"true\"><rect x=\"5.5\" y=\"5.5\" width=\"8\" height=\"8\" rx=\"1.6\"/><path d=\"M10.5 5.5V4a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 4v5A1.5 1.5 0 0 0 4 10.5h1.5\"/></svg></button></span><span class=\"ds-stage-meta\">48 min left</span><span class=\"ds-stage-actions\"><button class=\"ds-act\">Take control</button><button class=\"ds-act is-danger\">Close</button></span></header>",
+      "css": ".ds-stage-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; min-height: 64px; padding: 12px 24px 12px 32px; background: var(--surface, #ffffff); border-bottom: 1px solid var(--line, #ececef); font-size: 14px; } .ds-stage-head h1 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: -0.01em; } .ds-stage-id { display: inline-flex; align-items: center; font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; color: var(--muted, #6a6a73); } .ds-iconbtn { display: inline-grid; place-items: center; min-width: 28px; height: 28px; padding: 0 4px; border: 0; border-radius: 6px; background: none; color: var(--muted, #6a6a73); cursor: pointer; } .ds-iconbtn svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; } .ds-iconbtn:hover { background: var(--wash, rgba(17,17,19,0.05)); color: var(--ink, #111113); } .ds-stage-meta { color: var(--muted, #6a6a73); } .ds-stage-meta::before { content: \"·\"; margin-right: 12px; color: var(--faint, #a4a4ad); } .ds-stage-actions { margin-left: auto; display: flex; gap: 8px; } .ds-act { padding: 8px 16px; border: 1px solid var(--line-strong, #dcdce1); border-radius: 8px; background: var(--surface, #ffffff); color: var(--ink, #111113); font: inherit; font-weight: 500; cursor: pointer; } .ds-act:hover { background: var(--ground, #fafafa); border-color: var(--faint, #a4a4ad); } .ds-act.is-danger { padding: 8px 12px; border-color: transparent; background: none; color: var(--red, #dc2626); } .ds-act.is-danger:hover { background: color-mix(in srgb, var(--red, #dc2626) 8%, transparent); }"
+    },
+    {
+      "name": "Connect Panel",
+      "kind": "card",
+      "refersTo": "code-block",
+      "description": "Plain client tabs with an ink underline, the config in a night code block with the token masked, one Copy config button, a where-to-save line and the amber waiting pulse.",
+      "html": "<section class=\"ds-connect\"><h2>Connect your agent</h2><p class=\"ds-muted\">Add this to your agent. The token stops working when the phone closes.</p><div class=\"ds-clients\" role=\"group\" aria-label=\"Agent\"><button aria-pressed=\"true\">Claude Code</button><button aria-pressed=\"false\">Cursor</button><button aria-pressed=\"false\">Shell</button></div><div class=\"ds-code\"><pre>{\n  \"mcpServers\": {\n    \"phone-use\": {\n      \"env\": {\n        \"PHONE_USE_SANDBOX_TOKEN\": \"ps_a••••••••••••9f2c\"\n      }\n    }\n  }\n}</pre></div><button class=\"ds-copy-config\">Copy config</button><p class=\"ds-muted ds-small\">Save it as <code>.mcp.json</code> in your project, then restart Claude Code.</p><p class=\"ds-waiting\"><span class=\"ds-pulse\" aria-hidden=\"true\"></span>Waiting for your agent’s first action…</p></section>",
+      "css": ".ds-connect { display: flex; flex-direction: column; gap: 16px; width: 292px; font-size: 14px; line-height: 1.5; color: var(--ink, #111113); } .ds-connect h2 { margin: 0; font-size: 14px; font-weight: 600; } .ds-connect p { margin: 0; } .ds-muted { color: var(--muted, #6a6a73); } .ds-small { font-size: 12px; } .ds-small code { font-family: var(--font-mono, ui-monospace, monospace); font-size: 0.9em; padding: 1px 4px; border-radius: 4px; background: var(--wash, rgba(17,17,19,0.05)); color: var(--ink-2, #3b3b42); } .ds-clients { display: flex; gap: 16px; border-bottom: 1px solid var(--line, #ececef); } .ds-clients button { border: 0; border-bottom: 2px solid transparent; background: none; padding: 0 0 8px; margin-bottom: -1px; font: inherit; font-weight: 500; color: var(--muted, #6a6a73); cursor: pointer; } .ds-clients button:hover { color: var(--ink, #111113); } .ds-clients button[aria-pressed=\"true\"] { color: var(--ink, #111113); border-bottom-color: var(--ink, #111113); } .ds-code { background: var(--night, #111114); color: var(--night-ink, #ececf1); border-radius: 8px; overflow: hidden; } .ds-code pre { margin: 0; overflow-x: auto; padding: 16px; font: 12px/1.6 var(--font-mono, ui-monospace, monospace); white-space: pre; } .ds-code ::selection { background: rgba(154, 134, 255, 0.45); color: #ffffff; } .ds-copy-config { align-self: flex-start; padding: 8px 16px; border: 1px solid var(--ink, #111113); border-radius: 8px; background: var(--ink, #111113); color: var(--on-ink, #ffffff); font: inherit; font-weight: 500; cursor: pointer; } .ds-copy-config:hover { background: var(--ink-hover, #2b2b30); } .ds-waiting { display: flex; align-items: flex-start; gap: 8px; color: var(--muted, #6a6a73); } .ds-pulse { width: 6px; height: 6px; flex: none; margin-top: 8px; border-radius: 50%; background: var(--amber, #b45309); animation: ds-wait 1.6s ease-in-out infinite; } @keyframes ds-wait { 50% { opacity: 0.4; } }"
+    },
+    {
+      "name": "Activity Log",
+      "kind": "custom",
+      "refersTo": "agent-panel",
+      "description": "The phone’s real action log, newest first, as plain rows: a muted tabular clock time and one sentence. No nodes, icons or dividers.",
+      "html": "<section class=\"ds-activity\"><div class=\"ds-activity-head\"><h2>Activity</h2><button class=\"ds-plain\">Connection</button></div><ol class=\"ds-log\"><li><time>11:42:08</time><span>Read the screen (3×)</span></li><li><time>11:42:00</time><span>Tap “Track order”</span></li><li><time>11:41:53</time><span>Wait for “Order confirmed”</span></li><li><time>11:41:41</time><span>Type 18 characters into e14</span></li></ol></section>",
+      "css": ".ds-activity { display: flex; flex-direction: column; gap: 16px; width: 292px; font-size: 14px; line-height: 1.5; color: var(--ink, #111113); } .ds-activity-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; } .ds-activity-head h2 { margin: 0; font-size: 14px; font-weight: 600; } .ds-plain { border: 0; background: none; padding: 0; font: inherit; color: var(--muted, #6a6a73); cursor: pointer; } .ds-plain:hover { color: var(--ink, #111113); text-decoration: underline; } .ds-log { list-style: none; margin: 0; padding: 0; display: grid; } .ds-log li { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 12px; padding: 6px 0; } .ds-log time { font-size: 12px; color: var(--muted, #6a6a73); font-variant-numeric: tabular-nums; padding-top: 1px; }"
+    },
+    {
+      "name": "Night Bezel and Boot Screen",
+      "kind": "custom",
+      "refersTo": "live-frame",
+      "description": "The device frame in container-query units at the true 402:874 ratio; with no stream yet, a boot screen with the shared mark tinted via --ink and a runner bar. Night in both themes.",
+      "html": "<div class=\"ds-live\"><div class=\"ds-frame\"><div class=\"ds-boot\"><span class=\"ds-mark\" aria-hidden=\"true\"><i></i></span><span class=\"ds-bar\" aria-hidden=\"true\"><i></i></span></div></div><p class=\"ds-note\">Starting, usually a few seconds</p></div>",
+      "css": ".ds-live { container-type: inline-size; width: 180px; display: flex; flex-direction: column; align-items: center; gap: 12px; } .ds-frame { width: 100%; padding: 3.4cqw; border-radius: 16.5cqw; background: var(--bezel, #0b0b0d); border: 1px solid var(--bezel-ring, #cfcfd6); } .ds-boot { display: grid; place-items: center; align-content: center; gap: 20cqw; width: 100%; aspect-ratio: 402 / 874; border-radius: 13.2cqw; background: #17171c; --ink: #4a4a54; } .ds-mark { position: relative; width: 27px; aspect-ratio: 1; display: block; } .ds-mark::before, .ds-mark::after { content: \"\"; position: absolute; width: 58%; height: 58%; box-sizing: border-box; } .ds-mark::before { left: 1px; top: 1px; border-left: 5px solid var(--ink); border-top: 5px solid var(--ink); border-radius: 5px 0 0; } .ds-mark::after { right: 1px; bottom: 1px; border-right: 5px solid var(--ink); border-bottom: 5px solid var(--ink); border-radius: 0 0 5px; } .ds-mark i { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; background: var(--ink); transform: translate(-50%, -50%) rotate(45deg); } .ds-bar { display: block; width: 40%; height: 2px; border-radius: 2px; overflow: hidden; background: rgba(255, 255, 255, 0.1); } .ds-bar i { display: block; width: 45%; height: 100%; border-radius: 2px; background: #d4d4dc; animation: ds-boot 1.5s cubic-bezier(0.16, 1, 0.3, 1) infinite; } @keyframes ds-boot { from { transform: translateX(-100%); } to { transform: translateX(230%); } } .ds-note { margin: 0; font-size: 12px; color: var(--muted, #6a6a73); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Phone, and As Little Else As Possible",
+    "overview": "The console has three panes. A 232px sidebar lists your phones, each as a thumbnail, a name and one word. A fluid stage shows the selected phone at full viewport height inside a real night bezel, under a one-line header. A 340px panel shows one thing at a time: how to connect an agent, or what the agent did. The owner said the previous build \"looks AI generated\" and asked for it to be simple, so the simplification removed everything that called attention to itself: the nav block, counts, pills, status dots, ID lines, tabs, timeline nodes, footers and icon cards. What remains is text in four sizes, 1px hairlines, ink buttons and one held violet, spaced on one scale.\n\nLight is the default. Dark follows the system until the person picks a theme with the toggle, and the choice is stored on `<html data-theme>`. Both themes share one structure and change only token values. Night objects (the bezel, the boot screen, the code block) stay dark in both themes, because they depict hardware and terminals, not page surfaces.",
+    "keyCharacteristics": [
+      "Three panes with the phone first: 232px sidebar, fluid stage, 340px panel; one column at 960px and below.",
+      "One spacing scale (4, 8, 12, 16, 24, 32, 48) and four type sizes (12, 14, 18, 24) inside the console.",
+      "State is a word, not a dot. The only dots are the live-stream pulse under the phone and the amber waiting pulse in the panel.",
+      "Violet is for links, focus, text selection and control mode, nothing else.",
+      "Flat: 1px hairlines and tonal steps; the input focus ring is the only shadow.",
+      "Light and dark from one token set; night objects never invert.",
+      "Motion is functional and switches off entirely under reduced motion."
+    ],
+    "rules": [
+      {
+        "name": "The Violet-Is-Interaction Rule",
+        "body": "Violet marks links, focus, text selection and the person's own control of the phone, and nothing else. It never fills a button and never marks a selected row (selection is a wash). As a fill it is only a tint: the 8% hover wash on link buttons. The 30% radial glow on the auth statement panel is the one held exception.",
+        "section": "colors"
+      },
+      {
+        "name": "The Words-Carry-State Rule",
+        "body": "A phone's state is one lowercase word. Only \"working\" (green-ink) and \"failed\" (red) take a color; every other word is muted. There are no status dots: the only dots in the console are the live-stream pulse under the phone and the amber waiting pulse in the panel, and each sits beside words that say the same thing.",
+        "section": "colors"
+      },
+      {
+        "name": "The Night Object Rule",
+        "body": "The bezel, the boot screen and the code block stay night in both themes. Their tokens deepen slightly in dark but never invert. The page theme never reaches inside a phone or a code block.",
+        "section": "colors"
+      },
+      {
+        "name": "The Twin Block Rule",
+        "body": "Dark values are declared twice in globals.css: in `@media (prefers-color-scheme: dark)` on `:root:not([data-theme=\"light\"])`, and on `:root[data-theme=\"dark\"]`. Any change to a dark token edits both blocks identically.",
+        "section": "colors"
+      },
+      {
+        "name": "The Four Sizes Rule",
+        "body": "Inside the console, type is 12, 14, 18 or 24px. Hierarchy comes from those four steps, from weight (400, 500, 600) and from ink against muted. Only the auth screen uses a display clamp.",
+        "section": "typography"
+      },
+      {
+        "name": "The Mono-Is-Machine Rule",
+        "body": "Geist Mono marks values a machine produces or reads: phone IDs, the MCP config and shell exports, the API key and its mask, file and variable names in inline code, and `kbd`. Activity times are mono too, so the time column lines up. Mono is never used for headings or decoration.",
+        "section": "typography"
+      },
+      {
+        "name": "The Hairline Rule",
+        "body": "Regions separate with a 1px line or a tonal step, never a shadow. The only lines thicker than 1px are the two violet outlines, the 2px ink underline on the selected client tab, and the 2px boot and booting-thumbnail bars.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Real Bezel Rule",
+        "body": "Device frames are drawn in container-query units on the `.dash-live` container, so the bezel scales with the screen at any size. iPhone: a 402:874 screen, frame radius 16.5cqw, screen radius 13.2cqw. Android: a 540:1200 screen, frame radius 11cqw, screen radius 8cqw. Both pad the screen by 3.4cqw inside a bezel-colored frame with a 1px bezel-ring edge. Every depiction of a device (sidebar thumbnail, narrow chip, stage skeleton) keeps the true screen ratio for its platform.",
+        "section": "shapes"
+      },
+      {
+        "name": "The Shared Mark Rule",
+        "body": "The viewfinder logo (`.logo`, `.logo-mark` with `::before`/`::after` corner brackets and a rotated 6px center square) is a binding brand asset whose markup and CSS are shared verbatim with the landing app. Never redraw, restyle or approximate it. It draws in `var(--ink)`, so it follows the theme. To tint it, set `--ink` on a parent, as the boot screen does with boot-mark; never edit the mark. Load-bearing dependency: the box-sizing reset **must** cover pseudo-elements (`*, *::before, *::after { box-sizing: border-box; }`), because the corner brackets are pseudo-element borders and break under `content-box`.",
+        "section": "shapes"
+      },
+      {
+        "name": "The Quiet Thumbnail Rule",
+        "body": "A sidebar thumbnail is one frame taken from the phone's `/stream` socket, after which the socket is closed (it gives up after 8 seconds). It never uses the screenshot RPC, because RPC calls land in the action log as if the agent had acted. Opening `/stream` also counts as activity and keeps a phone alive, so a frame is taken only right after an agent action, never on a timer: the refresh key changes at most once per 15-second window, and only while the last agent action is less than 60 seconds old. An idle phone keeps its last frame and is never kept alive by its thumbnail.",
+        "section": "components"
+      },
+      {
+        "name": "The Kill-Switch Rule",
+        "body": "`prefers-reduced-motion: reduce` sets `animation: none` and `transition: none` on everything, with `!important`.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "**Do** keep the live phone the largest thing in the first viewport: size it from viewport height inside the 232px / fluid / 340px shell.",
+      "**Do** take spacing from 4, 8, 12, 16, 24, 32 and 48px, and type from 12, 14, 18 and 24px, inside the console.",
+      "**Do** say a phone's state in one lowercase word, coloring only \"working\" (green-ink) and \"failed\" (red).",
+      "**Do** define every new color as a token in the light `:root` and in both dark blocks, and reference roles (`var(--ink)`) in components.",
+      "**Do** keep bezels, boot screens and code blocks night in both themes.",
+      "**Do** draw devices in container-query units at the platform's true screen ratio (402:874 iPhone, 540:1200 Android).",
+      "**Do** guard destructive actions in two steps (arm, relabel, red fill, confirm; disarm after 4 seconds; \"Closing…\" while it runs).",
+      "**Do** take sidebar thumbnails as one `/stream` frame right after an agent action, and at no other time.",
+      "**Do** give every secret and snippet a copy button that announces through `aria-live`, and mask tokens on screen while copying the real value.",
+      "**Do** collapse to the top bar at 960px, visually hiding the wordmark and the \"Phones\" heading rather than removing them, and keep `?section=` deep links and `aria-current`.",
+      "**Do** keep the dependency posture: next, react, react-dom, geist and @vercel/analytics only; inline stroke SVG icons (15px, 1.4 stroke, currentColor); no icon packages."
+    ],
+    "donts": [
+      "**Don't** redraw or restyle the shared logo mark, or narrow the box-sizing reset; tint the mark only by setting `--ink` on a parent.",
+      "**Don't** add status dots, count pills, badges, counted tabs, timeline nodes, icon cards or panel footers; the simplification removed them on purpose.",
+      "**Don't** fill a button, mark a selection or color a heading with violet.",
+      "**Don't** let the page theme invert a bezel, boot screen or code block.",
+      "**Don't** refresh thumbnails on a timer or through the screenshot RPC; a timer keeps idle phones alive, and the RPC writes fake agent actions into the log.",
+      "**Don't** use faint for text a person needs to read; it is for marks.",
+      "**Don't** introduce shadows, hover lifts, uppercase or tracked labels, or a fifth type size inside the console.",
+      "**Don't** show closed or errored sessions among the phones; they belong to Usage.",
+      "**Don't** edit one dark token block without the other.",
+      "**Don't** import landing CSS or its dark/violet world; the console and landing are separate worlds sharing only the logo and voice."
+    ]
+  }
+}

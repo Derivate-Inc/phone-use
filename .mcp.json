@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "phone-use": {
+      "type": "stdio",
+      "command": "bun",
+      "args": ["packages/phone-use/src/index.ts", "mcp"],
+      "env": {}
+    }
+  }
+}

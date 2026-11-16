@@ -1,0 +1,24 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": ["src/index.ts", "src/testing.ts"],
+  "tsconfig": "./tsconfig.json",
+  "out": "../../docs-api",
+  "excludeInternal": true,
+  "excludeProtected": true,
+  "intentionallyNotExported": ["CommonIosOptions", "CommonAndroidOptions"],
+  "validation": {
+    "notDocumented": true
+  },
+  "requiredToBeDocumented": [
+    "Enum",
+    "EnumMember",
+    "Variable",
+    "Function",
+    "Class",
+    "Interface",
+    "Method",
+    "Accessor",
+    "TypeAlias"
+  ],
+  "treatValidationWarningsAsErrors": true
+}

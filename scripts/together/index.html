@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>phone-use · together</title>
+    <link rel="stylesheet" href="../../apps/web/app/globals.css" />
+    <style>
+      /* LiveView's Home/Return/Paste are replaced by the agent-path keys in client.tsx. */
+      .together .dash-live .phone-control-buttons,
+      .together .dash-live .phone-controls form {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./client.tsx"></script>
+  </body>
+</html>

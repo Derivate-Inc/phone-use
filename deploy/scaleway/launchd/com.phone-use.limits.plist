@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Simulator density is bound by PROCESS and FILE-DESCRIPTOR limits, not RAM.
+  Each booted iOS simulator costs roughly 150 processes and ~3,000 file
+  descriptors. macOS defaults (maxproc 2666, kern.maxfiles 49152) exhaust at
+  about nine simulators, and the failure surfaces as the misleading
+  "Unable to boot device due to insufficient system resources".
+
+  Install:  sudo cp com.phone-use.limits.plist /Library/LaunchDaemons/
+            sudo launchctl load -w /Library/LaunchDaemons/com.phone-use.limits.plist
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.phone-use.limits</string>
+  <key>RunAtLoad</key><true/>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string>
+    <string>-c</string>
+    <string>launchctl limit maxproc 4000 4000; sysctl -w kern.maxfiles=300000 kern.maxfilesperproc=200000</string>
+  </array>
+</dict>
+</plist>

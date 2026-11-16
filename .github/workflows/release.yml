@@ -1,0 +1,42 @@
+name: Release
+
+# Changesets release flow: on every push to main, the changesets action either
+# (a) opens/updates a "Version Packages" PR aggregating pending changesets, or
+# (b) if that PR was just merged (changesets are gone), publishes to npm.
+#
+# Publishing uses npm OIDC trusted publishing — deliberately NO NPM_TOKEN
+# anywhere: both packages must be registered on npmjs.com as trusted publishers
+# of this repo's release.yml (see RELEASING.md). Trusted publishing or nothing;
+# a long-lived token is the supply-chain hole this setup exists to close.
+
+on:
+  push:
+    branches: [main]
+
+concurrency: release-${{ github.ref }}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # changesets action pushes the Version Packages branch
+      pull-requests: write # ...and opens/updates the Version Packages PR
+      id-token: write # npm OIDC trusted publishing (provenance is automatic)
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+      # npm >= 11.5.1 is required for OIDC trusted publishing.
+      - run: npm install -g npm@latest
+      - run: bun install --frozen-lockfile
+      - run: bun run build && bun run check:publish
+      - uses: changesets/action@v1
+        with:
+          version: "bun run version"
+          publish: "bun run release"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # No NPM_TOKEN on purpose: OIDC trusted publishing only.

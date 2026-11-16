@@ -1,0 +1,93 @@
+/* The closing wall of real screens. Full bleed, tipped back, fading into the
+   page on every side so it never ends on a hard line. */
+
+.pw {
+  position: relative;
+  height: 560px;
+  margin-top: 72px;
+  overflow: hidden;
+  -webkit-mask-image:
+    linear-gradient(to right, transparent, #000 14%, #000 86%, transparent),
+    linear-gradient(to bottom, transparent, #000 18%, #000 62%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent, #000 14%, #000 86%, transparent),
+    linear-gradient(to bottom, transparent, #000 18%, #000 62%, transparent);
+  mask-composite: intersect;
+}
+
+.pw-plane {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding-top: 24px;
+  transform: perspective(1600px) rotateX(28deg) scale(1.08);
+  transform-origin: 50% 0;
+}
+
+.pw-row {
+  display: flex;
+  overflow: visible;
+}
+
+.pw-track {
+  display: flex;
+  flex: none;
+  gap: 28px;
+  padding-right: 28px;
+  animation: pw-drift 90s linear infinite;
+  will-change: transform;
+}
+
+.pw-row[data-dir='right'] .pw-track {
+  animation-direction: reverse;
+  animation-duration: 110s;
+}
+
+/* Rows start offset from one another, so no column of phones lines up */
+.pw-row:nth-child(2) {
+  margin-left: -98px;
+}
+
+.pw-row:nth-child(3) {
+  margin-left: -48px;
+}
+
+/* A quieter shadow than the kit's: dozens of phones, one plane */
+.pw .pw-phone {
+  box-shadow:
+    0 0 0 1px rgba(17, 17, 19, 0.05),
+    0 18px 30px -22px rgba(17, 17, 19, 0.45);
+}
+
+@keyframes pw-drift {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pw-track {
+    animation: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .pw {
+    height: 340px;
+    margin-top: 48px;
+  }
+
+  /* Smaller phones, more of them: the wall still reads as many */
+  .pw-plane {
+    gap: 18px;
+    transform: perspective(1000px) rotateX(24deg) scale(0.66);
+    transform-origin: 50% 0;
+    margin-inline: -50%;
+  }
+
+  .pw-track {
+    gap: 18px;
+    padding-right: 18px;
+  }
+}

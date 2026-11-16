@@ -1,0 +1,2 @@
+Monitoring boot status for iPhone 16.
+Device already booted, nothing to do.

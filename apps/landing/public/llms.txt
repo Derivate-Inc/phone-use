@@ -1,0 +1,46 @@
+# Phone Use
+
+> Cloud phones for AI agents. One open-source CLI (phone-use) creates an iOS
+> simulator or an Android emulator in the cloud and gives agents the same
+> verbs on both platforms through the CLI, an MCP server, and a TypeScript SDK
+> (@phone-use/sdk). Agents read the screen as named elements, and every action
+> reports whether the screen changed. Distinctives: deterministic map-powered
+> navigation (goto/ask/toggle with zero model calls), replayable skills, an
+> un-overridable destructive-action permission floor, a live browser viewer,
+> and portable trace artifacts. No Mac needed for cloud phones.
+
+## Install
+
+- CLI and MCP server (macOS or Linux): `curl -fsSL https://phoneuse.dev/install | bash` (installs Bun >= 1.3 if missing, then the CLI; re-run to update)
+- With Bun >= 1.3 already installed: `npm install -g phone-use` or `bun add -g phone-use`
+- SDK (Node >= 22 or Bun): `npm install @phone-use/sdk`
+- Check your setup: `phone-use doctor`
+
+## Cloud phones
+
+- `phone-use login` — sign in from the browser (or approve a code at app.phoneuse.dev/device)
+- `phone-use create ios` / `phone-use create android` — create a cloud phone; iOS starts warm in about 2s
+- `eval "$(phone-use env <id>)"` — attach the shell, so every verb targets that phone
+- `phone-use list` / `phone-use close <id>` — list or close phones; 1h default lifetime (up to 24h with --ttl), closes after 15 min idle
+- `phone-use install ./App.app` — install an iOS simulator build on the attached phone
+- Watch any phone in the console at app.phoneuse.dev (live video on iOS, screenshots on Android)
+
+## Agents
+
+- Any MCP client: `npx -y phone-use mcp`, with PHONE_USE_SANDBOX_URL and PHONE_USE_SANDBOX_TOKEN set for a cloud phone (the console prints the config)
+- Claude Code: `claude mcp add --scope project phone-use -- npx -y phone-use mcp`
+- Built-in agent: `phone-use task "<goal>"` (needs ANTHROPIC_API_KEY)
+- Shell verbs: `phone-use observe | tap | type | scroll | goto | ask | toggle | search | skill | atlas`;
+  `--json` prints a machine-readable envelope; exit codes: 0 ok, 1 failed, 2 blocked, 3 confirmation required
+
+## Local devices
+
+- Without a cloud phone attached, the CLI drives a local iOS Simulator (macOS with Xcode) or an Android emulator over adb (`phone-use connect android`)
+
+## Links
+
+- Product: https://www.phoneuse.dev
+- Docs: https://www.phoneuse.dev/docs
+- Benchmark breakdown (iOSWorld): https://www.phoneuse.dev/benchmark
+- npm (CLI): https://www.npmjs.com/package/phone-use
+- npm (SDK): https://www.npmjs.com/package/@phone-use/sdk

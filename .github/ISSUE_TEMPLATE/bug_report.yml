@@ -1,0 +1,48 @@
+name: Bug report
+description: Something broke — a verb failed, the MCP server misbehaved, the agent did the wrong thing
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What did you run, what did you expect, what happened instead?
+      placeholder: |
+        Ran `phone-use toggle Settings "Wi-Fi" --on` and got ...
+    validations:
+      required: true
+  - type: textarea
+    id: doctor
+    attributes:
+      label: phone-use doctor output
+      description: Paste the output of `phone-use doctor --json`
+      render: json
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: "`phone-use --version`"
+      placeholder: phone-use 0.1.1
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Surface
+      options:
+        - CLI device verb
+        - MCP server
+        - task / embedded agent session
+        - bench
+        - SDK (@phone-use/sdk)
+    validations:
+      required: true
+  - type: textarea
+    id: trace
+    attributes:
+      label: Trace artifact (optional)
+      description: >
+        If you can, re-run with `PHONE_USE_TRACE_MODE=on` and attach the zip
+        from ~/.phone-use/traces/ — it contains the action log and screenshots.

@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  biome:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bunx biome ci .
+
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['22.x', '24.x', '26.x']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      # vitest's bin shebang runs under the matrix Node; stub binaries' exec
+      # bit rides in from git.
+      - run: ./node_modules/.bin/vitest run
+
+  test-bun:
+    # The Bun leg: entry-load + permission-gate smokes under the PRODUCTION
+    # runtime. vitest-under-Bun is deliberately absent: zod's named exports
+    # resolve undefined inside vitest's transform on Bun (reproduced locally,
+    # first CI run) — the item-1 plan's sanctioned fallback is smokes-only
+    # here; the Node 22/24/26 matrix runs the full 178-test suite.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun packages/sdk/src/index.ts
+      - run: bun packages/phone-use/src/index.ts
+      - run: bun packages/phone-use/scripts/smoke-sdk.ts
+
+  test-api:
+    # Control-plane + worker suite runs under the bun:test runner (vitest
+    # excludes *.bun.test.ts deliberately).
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: cd apps/api && bun test
+
+  build-publish-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - run: bun run check:publish
+
+  dep-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun tools/dep-guard.ts
+
+  docs:
+    # TSDoc coverage gate: typedoc with validation.notDocumented treated as an
+    # error — an undocumented public symbol fails the build.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run docs:api

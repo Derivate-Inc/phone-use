@@ -1,0 +1,22 @@
+[Unit]
+Description=phone-use mobile sandbox control plane
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=phoneuse
+Group=phoneuse
+WorkingDirectory=/opt/phone-use
+EnvironmentFile=/etc/phone-use/control.env
+ExecStart=/home/phoneuse/.bun/bin/bun apps/api/src/control-plane-main.ts
+Restart=always
+RestartSec=2
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/var/lib/phone-use/control
+
+[Install]
+WantedBy=multi-user.target

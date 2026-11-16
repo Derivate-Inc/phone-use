@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* The base every page shares. Page and component styles live with them:
+   components/site/site.css (the shell), app/home.css, app/docs/docs.css,
+   app/benchmark/benchmark.css, app/legal.css. */
+
+:root {
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+* { margin: 0; }
+html { scroll-behavior: smooth; scrollbar-gutter: stable; -webkit-text-size-adjust: 100%; }
+body {
+  background: #fafafa;
+  color: #111113;
+  font-size: 16px;
+  line-height: 1.55;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: inherit; text-decoration: none; }
+button { color: inherit; font: inherit; }
+::selection { background: #e4e4e7; }
+:focus-visible { outline: 2px solid #111113; outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}

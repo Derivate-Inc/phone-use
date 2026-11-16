@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "name": "Settings accessibility smoke",
+  "app": "com.apple.Preferences",
+  "steps": [{ "tool": "observe", "args": {} }],
+  "expectations": [
+    { "kind": "app", "bundleId": "com.apple.Preferences" },
+    { "kind": "screen", "contains": "General", "app": "com.apple.Preferences" }
+  ]
+}

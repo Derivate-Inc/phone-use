@@ -1,0 +1,14 @@
+# Point these DNS names at the corresponding Scaleway hosts before starting Caddy.
+# Caddy obtains and renews public TLS certificates automatically.
+
+control.example.com {
+	reverse_proxy 127.0.0.1:8080
+}
+
+android-worker.example.com {
+	reverse_proxy 127.0.0.1:8090
+}
+
+ios-worker.example.com {
+	reverse_proxy 127.0.0.1:8090
+}

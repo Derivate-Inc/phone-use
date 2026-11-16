@@ -1,0 +1,16 @@
+{
+ "version":1,"name":"Live Settings navigation",
+ "app":"com.apple.Preferences",
+ "steps":[
+  {"tool":"observe","args":{}},
+  {"tool":"tap","args":{"label":"General"}},
+  {"tool":"wait_for","args":{"text":"About","timeoutMs":10000}},
+  {"tool":"tap","args":{"label":"About"}},
+  {"tool":"observe","args":{}}
+ ],
+ "expectations":[
+  {"kind":"app","bundleId":"com.apple.Preferences"},
+  {"kind":"screen","contains":"iOS Version","app":"com.apple.Preferences"},
+  {"kind":"screen","contains":"Model Name","app":"com.apple.Preferences"}
+ ]
+}

@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node"],
+    "paths": {
+      "@phone-use/sdk": ["./packages/sdk/src/index.ts"],
+      "@phone-use/sdk/testing": ["./packages/sdk/src/testing.ts"]
+    }
+  },
+  "include": ["vitest.config.ts", "tools/**/*.ts", "test/**/*.ts", "eval/**/*.ts"]
+}

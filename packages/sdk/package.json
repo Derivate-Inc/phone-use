@@ -1,0 +1,64 @@
+{
+  "name": "@phone-use/sdk",
+  "version": "0.6.0",
+  "description": "Typed mobile-device SDK with its own iOS XCTest runner — Device, backends, errors, actions",
+  "type": "module",
+  "license": "Apache-2.0",
+  "sideEffects": false,
+  "homepage": "https://www.phoneuse.dev",
+  "bugs": {
+    "url": "https://github.com/Derivate-Inc/phone-use/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Derivate-Inc/phone-use.git",
+    "directory": "packages/sdk"
+  },
+  "keywords": [
+    "ios",
+    "simulator",
+    "mobile",
+    "device",
+    "automation",
+    "agent",
+    "ai",
+    "testing"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.mts",
+      "bun": "./src/index.ts",
+      "import": "./dist/index.mjs"
+    },
+    "./testing": {
+      "types": "./dist/testing.d.mts",
+      "bun": "./src/testing.ts",
+      "import": "./dist/testing.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src",
+    "ios-runner/project.yml",
+    "ios-runner/README.md",
+    "ios-runner/PhoneUseRunner",
+    "ios-runner/PhoneUseRunnerUITests",
+    "ios-runner/PhoneUseRunner.xcodeproj/project.pbxproj",
+    "ios-runner/PhoneUseRunner.xcodeproj/xcshareddata",
+    "android-helper/phone-use-helper.jar",
+    "android-helper/build.sh",
+    "android-helper/src"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit"
+  }
+}

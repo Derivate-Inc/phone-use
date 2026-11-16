@@ -1,0 +1,467 @@
+/* Phone Use hero. The page is the ground: no plate. The terminal sits on
+   the content edge and, with the phone straddling its right side, runs off
+   the stage's foot, where the page draws its section rule. */
+.pu-hero .ss-stage {
+  overflow: hidden;
+  background: transparent;
+}
+
+/* ── Terminal ──────────────────────────────────────────────────────────── */
+
+.pu-hero .pu-term {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  width: 900px;
+  height: 520px;
+  border-radius: 14px;
+  --ss-term-bg: #131315;
+  --ss-term-path: #6f6e78;
+  --ss-term-sigil: #8f8e99;
+  --ss-term-ok: #5fd39c;
+  --ss-term-dim: #6f6e78;
+}
+
+.pu-hero .ss-window[data-chrome='terminal'].pu-term {
+  /* Tight, so the stage never cuts a long shadow square at its sides */
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+    0 20px 32px -24px rgba(17, 17, 19, 0.45);
+}
+
+.pu-hero .pu-term .ss-window__body {
+  position: relative;
+  overflow: hidden;
+}
+
+/* A full scrollback anchored a little above the crop: new lines push old
+   ones up, and the oldest leave under a soft top edge */
+.pu-hero .pu-scroll {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 408px;
+  justify-content: flex-end;
+  padding: 0 26px 28px;
+  font-size: 14px;
+  line-height: 1.7;
+  gap: 2px;
+  color: #a9a8b3;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 88px);
+  mask-image: linear-gradient(to bottom, transparent, #000 88px);
+}
+
+.pu-hero .pu-scroll > * {
+  flex-shrink: 0;
+}
+
+.pu-hero .pu-scroll > [data-fresh] {
+  animation: pu-line-in 0.16s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.pu-hero .pu-scroll > * + .ss-term__prompt {
+  margin-top: 10px;
+}
+
+.pu-hero .pu-out {
+  white-space: pre;
+}
+
+.pu-hero .pu-out .id {
+  color: #e9e8ee;
+}
+
+/* The one accent: the value the agent read, here and on the phone */
+.pu-hero .pu-out .val {
+  color: #b7a6ff;
+  font-weight: 600;
+}
+
+@keyframes pu-line-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ── Phones ────────────────────────────────────────────────────────────── */
+
+/* Straddles the terminal's right edge, a third outside; the stage crops its
+   foot. Away, it waits below the stage and comes back up the same way. */
+.pu-hero .pu-phone {
+  position: absolute;
+  will-change: transform;
+  top: 56px;
+  right: 0;
+  /* A tight shadow: the kit's long fall would be cut square by the stage */
+  box-shadow:
+    0 0 0 1px rgba(17, 17, 19, 0.04),
+    0 24px 36px -26px rgba(17, 17, 19, 0.38),
+    0 2px 6px rgba(17, 17, 19, 0.08);
+  transition: transform 0.9s cubic-bezier(0.25, 0.8, 0.25, 1) 0.18s;
+}
+
+.pu-hero .pu-phone[data-away] {
+  transform: translateY(620px);
+  transition: transform 0.55s cubic-bezier(0.45, 0, 0.55, 1);
+}
+
+/* A navigation stack, at true points inside the phone's screen, under the
+   status bar (which stays put while screens push, as on the device) */
+.pu-hero .pu-stack {
+  position: absolute;
+  inset: 62px 0 0;
+  overflow: hidden;
+}
+
+.pu-hero .pu-stack[data-platform='android'] {
+  top: 48px;
+}
+
+.pu-hero .pu-screen {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+  transition:
+    transform 0.5s cubic-bezier(0.3, 0.75, 0.1, 1),
+    filter 0.5s cubic-bezier(0.3, 0.75, 0.1, 1);
+}
+
+.pu-hero .pu-screen[data-pos='next'] {
+  transform: translateX(100%);
+}
+
+.pu-hero .pu-screen[data-pos='under'] {
+  transform: translateX(-30%);
+  filter: brightness(0.92);
+}
+
+/* Off the stack's face once the push lands: nothing hidden keeps drawing */
+.pu-hero .pu-screen:not([data-pos='in']) {
+  visibility: hidden;
+  transition:
+    transform 0.5s cubic-bezier(0.3, 0.75, 0.1, 1),
+    filter 0.5s cubic-bezier(0.3, 0.75, 0.1, 1),
+    visibility 0s linear 0.5s;
+}
+
+.pu-hero [data-platform='ios'] .pu-screen {
+  background: #f2f2f7;
+}
+
+.pu-hero [data-platform='android'] .pu-screen {
+  background: #f8f9fc;
+}
+
+/* ── iOS Settings ─────────────────────────────────────────────────────── */
+
+.pu-hero [data-platform='ios'] {
+  font-family: -apple-system, 'SF Pro Text', system-ui, sans-serif;
+  color: #000;
+  letter-spacing: -0.01em;
+}
+
+.pu-hero .pu-ios-large {
+  margin: 2px 20px 10px;
+  font-size: 34px;
+  font-weight: 700;
+  line-height: 41px;
+  letter-spacing: 0.01em;
+}
+
+.pu-hero .pu-ios-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  margin: 0 16px 20px;
+  padding: 0 12px;
+  border-radius: 20px;
+  background: #e3e3e9;
+  color: #85858b;
+  font-size: 17px;
+}
+
+.pu-hero .pu-ios-nav {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  margin-bottom: 14px;
+}
+
+.pu-hero .pu-ios-back {
+  position: absolute;
+  left: 16px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  color: #1c1c1e;
+}
+
+.pu-hero .pu-ios-back svg {
+  margin-left: -2px;
+}
+
+.pu-hero .pu-ios-navtitle {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.pu-hero .pu-ios-group {
+  margin: 0 16px 22px;
+  border-radius: 24px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.pu-hero .pu-ios-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 52px;
+  padding: 0 14px 0 16px;
+  font-size: 17px;
+  transition: background-color 0.12s;
+}
+
+/* Separators start under the title, as iOS draws them */
+.pu-hero .pu-ios-row + .pu-ios-row::before,
+.pu-hero .pu-ios-read + .pu-ios-row::before,
+.pu-hero .pu-ios-row + .pu-ios-read .pu-ios-row::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 16px;
+  height: 0.5px;
+  background: #d4d4d8;
+}
+
+.pu-hero .pu-ios-row[data-icon] + .pu-ios-row[data-icon]::before {
+  left: 60px;
+}
+
+.pu-hero .pu-ios-row[data-pressed] {
+  background: #e5e5ea;
+}
+
+.pu-hero .pu-ios-tile {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+}
+
+.pu-hero .pu-ios-title {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+}
+
+.pu-hero .pu-ios-value {
+  color: #8a8a8e;
+  white-space: nowrap;
+}
+
+.pu-hero .pu-ios-chev {
+  flex: none;
+  margin-left: -6px;
+  color: #c4c4c9;
+}
+
+.pu-hero .pu-ios-row--bar {
+  gap: 0;
+}
+
+/* The element the agent read: its accessibility frame, drawn the way the
+   console marks it */
+.pu-hero .pu-ios-read {
+  position: relative;
+}
+
+.pu-hero .pu-ios-read::after {
+  content: '';
+  position: absolute;
+  inset: 5px 7px;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 2px var(--ss-accent);
+  background: color-mix(in srgb, var(--ss-accent) 7%, transparent);
+  opacity: 0;
+  scale: 1.04;
+  transition:
+    opacity 0.3s cubic-bezier(0.25, 0.8, 0.25, 1),
+    scale 0.45s cubic-bezier(0.25, 0.8, 0.25, 1);
+  pointer-events: none;
+}
+
+.pu-hero .pu-ios-read[data-on]::after {
+  opacity: 1;
+  scale: 1;
+}
+
+.pu-hero .pu-ios-read[data-on] .pu-ios-value {
+  color: var(--ss-accent);
+  font-weight: 600;
+}
+
+/* ── Android Settings (Pixel, Android 14) ─────────────────────────────── */
+
+.pu-hero [data-platform='android'] {
+  font-family: 'Google Sans', Roboto, system-ui, sans-serif;
+  color: #1a1c1f;
+}
+
+.pu-hero .pu-droid-large {
+  margin: 30px 24px 26px;
+  font-size: 36px;
+  line-height: 44px;
+}
+
+.pu-hero .pu-droid-search {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 56px;
+  margin: 0 16px 14px;
+  padding: 0 18px;
+  border-radius: 28px;
+  background: #e9edf3;
+  color: #44474e;
+  font-size: 17px;
+}
+
+.pu-hero .pu-droid-bar {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 0 12px;
+}
+
+.pu-hero .pu-droid-back {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  color: #1a1c1f;
+}
+
+.pu-hero .pu-droid-heading {
+  margin: 18px 24px 30px;
+  font-size: 36px;
+  line-height: 44px;
+}
+
+.pu-hero .pu-droid-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-height: 76px;
+  padding: 10px 24px;
+  transition: background-color 0.15s;
+}
+
+.pu-hero .pu-droid-row[data-pressed] {
+  background: #e3e7ee;
+}
+
+.pu-hero .pu-droid-icon {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.pu-hero .pu-droid-icon[data-tone='blue'] { background: #d3e3fd; color: #0b57d0; }
+.pu-hero .pu-droid-icon[data-tone='teal'] { background: #c2e7ff; color: #00639b; }
+.pu-hero .pu-droid-icon[data-tone='green'] { background: #c4eed0; color: #146c2e; }
+.pu-hero .pu-droid-icon[data-tone='amber'] { background: #ffdf99; color: #7a5900; }
+.pu-hero .pu-droid-icon[data-tone='rose'] { background: #ffd8e4; color: #8c1d18; }
+.pu-hero .pu-droid-icon[data-tone='violet'] { background: #e8def8; color: #4f378b; }
+
+.pu-hero .pu-droid-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pu-hero .pu-droid-title {
+  font-size: 19px;
+  line-height: 25px;
+  white-space: nowrap;
+}
+
+.pu-hero .pu-droid-summary {
+  color: #44474e;
+  font-size: 15px;
+  line-height: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pu-hero .pu-droid-switch {
+  position: relative;
+  flex: none;
+  width: 52px;
+  height: 32px;
+  border: 2px solid #74777f;
+  border-radius: 16px;
+  background: #e1e2e8;
+}
+
+.pu-hero .pu-droid-switch span {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #74777f;
+}
+
+/* ── Compact: the terminal on top, whole and scrolled; the phone under it ── */
+
+.pu-hero .ss-stage[data-layout='compact'] .pu-term {
+  top: 0;
+  width: 342px;
+  height: 300px;
+  border-radius: 12px;
+}
+
+.pu-hero .ss-stage[data-layout='compact'] .pu-scroll {
+  height: 262px;
+  padding: 0 14px 14px;
+  font-size: 11px;
+  -webkit-mask-image: linear-gradient(to bottom, transparent, #000 48px);
+  mask-image: linear-gradient(to bottom, transparent, #000 48px);
+}
+
+/* A narrow terminal wraps long lines, as a real one does: at spaces where
+   it can, inside an ID only when it must */
+.pu-hero .ss-stage[data-layout='compact'] .pu-scroll > *,
+.pu-hero .ss-stage[data-layout='compact'] .pu-scroll .ss-term__line {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.pu-hero .ss-stage[data-layout='compact'] .pu-scroll > * + .ss-term__prompt {
+  margin-top: 6px;
+}
+
+.pu-hero .ss-stage[data-layout='compact'] .pu-phone {
+  top: 318px;
+  right: 26px;
+}

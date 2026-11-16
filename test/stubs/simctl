@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+// Fake simctl for the integration tier. Round-trips argv so tests can assert
+// exact argument vectors, quoting, stream routing, and exit paths.
+//   STUB_EXIT=N            exit code (default 0)
+//   STUB_STDERR=text       emitted to stderr
+//   STUB_STDOUT_FILE=path  cat a fixture to stdout instead of the argv echo
+//   STUB_STDOUT_BYTES=N    emit N bytes of 'x' (pipe-backpressure test)
+import fs from 'node:fs';
+if (process.env.STUB_STDERR) process.stderr.write(process.env.STUB_STDERR);
+if (process.env.STUB_STDOUT_FILE) process.stdout.write(fs.readFileSync(process.env.STUB_STDOUT_FILE));
+else if (process.env.STUB_STDOUT_BYTES) process.stdout.write('x'.repeat(Number(process.env.STUB_STDOUT_BYTES)));
+else process.stdout.write(JSON.stringify({ stub: 'simctl', argv: process.argv.slice(2) }) + '\n');
+// exitCode (not process.exit): exit() drops buffered pipe writes — the exact
+// class of stream bug this stub tier exists to catch.
+process.exitCode = Number(process.env.STUB_EXIT ?? 0);

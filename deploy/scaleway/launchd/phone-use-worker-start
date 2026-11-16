@@ -1,0 +1,6 @@
+#!/bin/bash
+# launchd entry: load env, exec the worker (KeepAlive restarts on crash).
+set -a
+source /Users/m1/cloud-env/worker.env
+set +a
+exec /Users/m1/.bun/bin/bun /Users/m1/phone-use/apps/api/src/worker-main.ts

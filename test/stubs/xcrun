@@ -1,0 +1,31 @@
+#!/usr/bin/env node
+// Fake xcrun for the integration tier. Same protocol as simctl/adb, plus:
+//   STUB_STDOUT_DIR=dir   if <dir>/<subcommand>.out exists (subcommand =
+//                         argv[1], e.g. create/boot/list), cat it to stdout
+//                         — per-subcommand fixtures for multi-call sequences
+//   STUB_ARGV_LOG=file    append JSON.stringify(argv)+'\n' — the side channel
+//                         sequence assertions read (stdout goes to the SUT)
+//   STUB_EXIT / STUB_STDERR / STUB_STDOUT_FILE / STUB_STDOUT_BYTES as before
+import fs from 'node:fs';
+import path from 'node:path';
+const argv = process.argv.slice(2);
+if (process.env.STUB_ARGV_LOG) fs.appendFileSync(process.env.STUB_ARGV_LOG, `${JSON.stringify(argv)}\n`);
+if (process.env.STUB_STDERR) process.stderr.write(process.env.STUB_STDERR);
+let wrote = false;
+if (process.env.STUB_STDOUT_DIR) {
+  // argv shape: simctl [--set path] <subcommand> ... — find the subcommand.
+  const rest = argv[1] === '--set' ? argv.slice(3) : argv.slice(1);
+  const sub = rest[0];
+  const f = sub && path.join(process.env.STUB_STDOUT_DIR, `${sub}.out`);
+  if (f && fs.existsSync(f)) {
+    process.stdout.write(fs.readFileSync(f));
+    wrote = true;
+  }
+}
+if (!wrote) {
+  if (process.env.STUB_STDOUT_FILE) process.stdout.write(fs.readFileSync(process.env.STUB_STDOUT_FILE));
+  else if (process.env.STUB_STDOUT_BYTES) process.stdout.write('x'.repeat(Number(process.env.STUB_STDOUT_BYTES)));
+  else process.stdout.write(`${JSON.stringify({ stub: 'xcrun', argv })}\n`);
+}
+// exitCode (not process.exit): exit() drops buffered pipe writes.
+process.exitCode = Number(process.env.STUB_EXIT ?? 0);
