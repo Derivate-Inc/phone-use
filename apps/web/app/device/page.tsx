@@ -126,7 +126,7 @@ export default function DevicePage() {
           <>
             <h1>Terminal connected.</h1>
             <p className="dash-auth-sub">
-              Return to your terminal — it has the key and is ready to create phones.
+              Return to your terminal. It now has the key for this account.
             </p>
             <a className="dash-btn dash-btn-block" href="/">
               Go to the console

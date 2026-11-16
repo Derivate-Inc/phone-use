@@ -71,7 +71,7 @@ export function AuthScreen({ api, onSignedIn }: { api: string; onSignedIn: (me: 
     <div className="dash-auth-split">
       <aside className="dash-auth-visual" aria-hidden="true">
         <div className="dash-auth-statement">
-          <h2>The mobile runtime for AI&nbsp;agents.</h2>
+          <h2>Give your agent a&nbsp;phone.</h2>
           <p>
             Free on your own machine, with no account. Cloud phones, which your agent drives while you watch live, are on
             a waitlist.
