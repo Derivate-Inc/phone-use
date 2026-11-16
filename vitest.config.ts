@@ -22,12 +22,7 @@ export default defineConfig({
     ],
   },
   test: {
-    include: [
-      'test/**/*.test.ts',
-      'packages/*/test/**/*.test.ts',
-      'apps/*/test/**/*.test.ts',
-      'eval/test/**/*.test.ts',
-    ],
+    include: ['packages/*/test/**/*.test.ts', 'apps/*/test/**/*.test.ts', 'eval/test/**/*.test.ts'],
     // *.bun.test.ts files use the bun:test runner (cd apps/api && bun test).
     exclude: ['**/node_modules/**', '**/*.bun.test.ts'],
     maxWorkers: 2, // 3 vCPU / 4 GB box

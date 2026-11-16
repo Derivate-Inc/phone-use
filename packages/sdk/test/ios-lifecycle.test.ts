@@ -4,8 +4,7 @@ import { ActionFailedError, DeviceNotFoundError, ios, TimeoutError } from '../sr
 import { createDeviceHandle } from '../src/lifecycle.ts';
 import { FakeBackend, type ScriptedExecStep, screen, scriptedExecRunner } from '../src/testing.ts';
 
-const fixture = (name: string) =>
-  readFileSync(new URL(`../../../test/fixtures/${name}`, import.meta.url), 'utf8');
+const fixture = (name: string) => readFileSync(new URL(`./fixtures/${name}`, import.meta.url), 'utf8');
 
 const UDID = 'AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEEEEEE';
 const createStep = (stdout = `${UDID}\n`): ScriptedExecStep => ({ stdout });
