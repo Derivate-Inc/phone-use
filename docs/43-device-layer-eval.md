@@ -2,7 +2,7 @@
 
 Status: proposal. Nothing here has been run.
 **Update, 2026-11-04:** Tiers 1 and 2 are built in [`eval/`](../eval/README.md); the first results are in
-[doc 45](45-device-layer-eval-results.md). Written after the founder asked what `phone-use bench`
+doc 45. Written after the founder asked what `phone-use bench`
 actually measures and pointed at the issues engineers file against agent-device, mobile-mcp and
 MobileBuildMCP.
 
@@ -14,7 +14,7 @@ MobileBuildMCP.
 - It cannot run against any other tool, because it calls our harness verbs.
 - On 2026-11-04 I changed two fixtures and cleared Maps' first-run splash by hand until it passed.
   That is tuning on the test set.
-- The T0–T9 table in [doc 42](42-own-device-layer.md) mixes numbers from four researchers who
+- The T0–T9 table in doc 42 mixes numbers from four researchers who
   drove each tool differently. It is indicative, not a controlled comparison.
 
 So 6/6 means "no regressions on our happy path". It says nothing about where we are wrong or how
@@ -82,7 +82,7 @@ The output is a per-case matrix with failures and variance, not a score.
 
 The tool's own report is recorded but never trusted.
 
-- **Gauntlet**, an oracle app (extending Labyrinth's approach in `testapp/`). Every scenario screen
+- **Gauntlet**, an oracle app (extending the approach of Labyrinth, an earlier test app). Every scenario screen
   appends what the app *actually received* to `Documents/events.jsonl`: each touch point and the
   view it hit, each text change, each control activation, alert decisions, navigation events,
   with timestamps. The harness reads it host-side via `simctl get_app_container`. This is how

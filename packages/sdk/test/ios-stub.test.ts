@@ -2,10 +2,10 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ios } from '@phone-use/sdk';
-import type { ExecRunner } from '@phone-use/sdk/testing';
 import { describe, expect, it } from 'vitest';
-import { defaultExecRunner } from '../packages/sdk/src/exec.ts';
+import { defaultExecRunner } from '../src/exec.ts';
+import { ios } from '../src/index.ts';
+import type { ExecRunner } from '../src/testing.ts';
 
 // The one integration-tier lifecycle test: launch + close through the REAL
 // defaultExecRunner (actual process spawn), resolved to the xcrun PATH stub.

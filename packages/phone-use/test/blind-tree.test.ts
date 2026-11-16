@@ -107,7 +107,7 @@ describe('detectBlindTree', () => {
     // A Flutter app exposing Semantics, or a hybrid page with native text.
     const v = detectBlindTree([
       { role: 'WebView', label: '', rect: { x: 0, y: 0, width: 1080, height: 2000 } },
-      { role: 'StaticText', label: 'Welcome back, Rajmeet', rect: { x: 40, y: 100, width: 500, height: 60 } },
+      { role: 'StaticText', label: 'Welcome back, Ada', rect: { x: 40, y: 100, width: 500, height: 60 } },
       { role: 'Button', label: 'Continue to checkout', rect: { x: 40, y: 200, width: 500, height: 80 } },
       { role: 'StaticText', label: 'Your cart has 3 items', rect: { x: 40, y: 300, width: 500, height: 60 } },
     ]);

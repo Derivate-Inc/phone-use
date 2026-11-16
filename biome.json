@@ -4,13 +4,11 @@
   "files": {
     "includes": [
       "packages/**",
-      "test/**",
       "tools/**",
       "eval/**",
       "*.ts",
       "*.json",
       "!landing",
-      "!testapp",
       "!docs",
       "!eval/results",
       "!eval/gauntlet/build"

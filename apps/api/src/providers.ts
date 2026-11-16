@@ -401,7 +401,7 @@ export type AndroidEmulatorProviderOptions = {
  * instance runs `-read-only`, so N phones share the system image and each
  * tenant's userdata is discarded on kill — reset is free and there is nothing
  * to wipe. Needs /dev/kvm; the AVD must have been booted once normally so its
- * quick-boot snapshot exists (deploy/scaleway/bootstrap-android-host.sh).
+ * quick-boot snapshot exists.
  */
 export class AndroidEmulatorProvider implements SandboxProvider {
   readonly platform = 'android' as const;

@@ -1,8 +1,7 @@
 // OTP extraction — pull a one-time verification code out of on-screen text.
 //
-// This is the core of the consent-gated OTP relay (docs/38): the single most
-// market-validated phone-only primitive — the thing Notte/WorkOS build with a
-// rented SMS number, done on the user's actual device. The extraction is a
+// This is the core of the consent-gated OTP relay: reading a code on the
+// user's actual device instead of renting an SMS number. The extraction is a
 // pure function so it is unit-testable without a live SMS; the tool that reads
 // the screen and gates on consent lives in registry.ts.
 //

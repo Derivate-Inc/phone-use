@@ -8,6 +8,9 @@
 // the app is genuinely hard and unfamiliar.
 //
 //   bun scripts/bench-labyrinth.ts [--surface raw|full] [--model opus]
+//
+// The Labyrinth app's source is not in this repository. The script expects an
+// app with bundle id com.phoneuse.labyrinth already installed on the simulator.
 
 import { execFileSync } from 'node:child_process';
 import { forgetMap } from '../src/appmap.ts';

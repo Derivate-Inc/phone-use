@@ -7,5 +7,5 @@
       "@phone-use/sdk/testing": ["./packages/sdk/src/testing.ts"]
     }
   },
-  "include": ["vitest.config.ts", "tools/**/*.ts", "test/**/*.ts", "eval/**/*.ts"]
+  "include": ["vitest.config.ts", "tools/**/*.ts", "eval/**/*.ts"]
 }

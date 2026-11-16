@@ -26,7 +26,7 @@ trusted publishing, or not at all.
 4. **Register the trusted publisher for BOTH packages** on npmjs.com
    (`@phone-use/sdk` and `phone-use` → Settings → Trusted publisher):
    - Provider: GitHub Actions
-   - Organization/user: `rajmeet`
+   - Organization/user: `Derivate-Inc`
    - Repository: `phone-use`
    - Workflow filename: `release.yml`
    - Environment: (leave empty)

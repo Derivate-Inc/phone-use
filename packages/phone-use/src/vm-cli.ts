@@ -1,7 +1,9 @@
 // `phone-use vm …` — rent and prepare the Macs that host simulators.
-// Talks to the Scaleway Apple-silicon API directly (SCW_* env / .env), then
-// hands off to deploy/scaleway/bootstrap-host.sh for host preparation. This is
+// Talks to the Scaleway Apple-silicon API directly (SCW_* env / .env). This is
 // the operator-side counterpart of `phone-use create` (which makes sandboxes).
+// Preparing the host once it is delivered (Xcode, Bun, the worker service) is
+// done with the operator's own scripts, which are not part of this repository:
+// `vm bootstrap` runs PHONE_USE_VM_BOOTSTRAP_SCRIPT when it is set.
 
 const ZONE = process.env.SCW_ZONE ?? 'fr-par-1';
 const API = `https://api.scaleway.com/apple-silicon/v1alpha1/zones/${ZONE}`;
@@ -91,8 +93,16 @@ export async function runVmCli(args: string[]): Promise<number> {
           await Bun.sleep(60_000);
           server = await scw<Server>(`/servers/${id}`);
         }
-        console.log(`Server ready at ${server.ip}; running deploy/scaleway/bootstrap-host.sh`);
-        const proc = Bun.spawn(['bash', 'deploy/scaleway/bootstrap-host.sh', server.ip], {
+        const script = process.env.PHONE_USE_VM_BOOTSTRAP_SCRIPT;
+        if (!script) {
+          console.log(`Server ready at ${server.ip}.`);
+          console.log(
+            'Set PHONE_USE_VM_BOOTSTRAP_SCRIPT to a script that prepares the host (it gets the IP as its argument) to run it from here.',
+          );
+          return 0;
+        }
+        console.log(`Server ready at ${server.ip}; running ${script}`);
+        const proc = Bun.spawn(['bash', script, server.ip], {
           stdout: 'inherit',
           stderr: 'inherit',
         });

@@ -2,7 +2,7 @@
 
 **Computer use, for phones.** A runtime that lets AI agents operate an iPhone — fast, verifiable, and reliable — plus a novel capability no phone-use tool has had before: an agent that **autonomously maps an app into a reusable graph** and then navigates it deterministically!
 
-The runtime drives the iOS Simulator and real iPhones on macOS, and Android devices or emulators over adb on any OS. The SDK keeps the device transport behind a private backend boundary, and the transport is ours end to end: an XCTest runner for iOS simulators and a small on-device helper for Android, with zero third-party runtime dependencies ([how and why](docs/42-own-device-layer.md)).
+The runtime drives the iOS Simulator and real iPhones on macOS, and Android devices or emulators over adb on any OS. The SDK keeps the device transport behind a private backend boundary, and the transport is ours end to end: an XCTest runner for iOS simulators and a small on-device helper for Android, with zero third-party runtime dependencies.
 
 ## Packages
 
@@ -29,9 +29,7 @@ Desktop "computer use" got good. Phones stayed unexplored — partly because you
 - A browser **live viewer** (`localhost:4936`): MJPEG screen video + a 60fps client-side cursor overlay — watch the agent drive in real time
 
 Cloud iOS sessions also expose an authenticated **Open phone** page with native
-H.264 video (30fps target), browser decoding, and automatic reconnection. See
-[cloud live video](docs/cloud-live-video.md) for worker setup, implementation,
-and local verification results.
+H.264 video (30fps target), browser decoding, and automatic reconnection.
 
 ### App Cartographer — the novel core (`packages/phone-use/src/explore.ts`, `packages/phone-use/src/appmap.ts`)
 - **Autonomous crawl** → a graph of screens (nodes) and transitions (edges), keyed by a structural signature stable across dynamic content
@@ -70,7 +68,7 @@ and local verification results.
 
 ## Benchmark
 
-**The device layer has a regression eval** ([`eval/`](eval/README.md), results in [docs/45](docs/45-device-layer-eval-results.md)): 30 probes on a test app that records what it actually received, so the tool never grades itself, plus a multi-agent tier. Its headline is the false-success rate (the tool said OK, the app says otherwise). phone-use was tuned against these probes, so its 0% there is a regression bar, not evidence of reliability in general; comparisons with other tools are not yet independent. It measures single device actions, not whether an agent completes real tasks. `bun run bench` below is a smoke test of the high-level verbs.
+**The device layer has a regression eval** ([`eval/`](eval/README.md)): 30 probes on a test app that records what it actually received, so the tool never grades itself, plus a multi-agent tier. Its headline is the false-success rate (the tool said OK, the app says otherwise). phone-use was tuned against these probes, so its 0% there is a regression bar, not evidence of reliability in general; comparisons with other tools are not yet independent. It measures single device actions, not whether an agent completes real tasks. `bun run bench` below is a smoke test of the high-level verbs.
 
 `bun run bench` runs a suite of phone tasks, each a skill that ends in a `verify` text check on the final screen, from a clean state, timed, across the capability classes. Latest simulator run:
 
