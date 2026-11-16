@@ -185,9 +185,15 @@ EOF
   esac
 
   say ""
-  say "Next:"
-  say "  phone-use login"
-  say "  phone-use create ios      ${dim}# or: phone-use create android${reset}"
+  say "Next, on this machine (no account needed):"
+  if [[ $(uname -s) == Darwin ]]; then
+    say "  open -a Simulator         ${dim}# needs Xcode. For Android: phone-use connect android${reset}"
+  else
+    say "  phone-use connect android ${dim}# an Android device or emulator over adb${reset}"
+  fi
+  say "  phone-use observe"
+  say ""
+  say "Cloud phones are on a waitlist: https://phoneuse.dev/waitlist"
 }
 
 main "$@"
