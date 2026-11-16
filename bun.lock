@@ -20,7 +20,7 @@
     },
     "apps/api": {
       "name": "@phone-use/cloud",
-      "version": "0.0.4",
+      "version": "0.1.0",
       "bin": {
         "phone-use-cloud": "src/control-plane-main.ts",
         "phone-use-worker": "src/worker-main.ts",
@@ -72,14 +72,14 @@
     },
     "packages/phone-use": {
       "name": "phone-use",
-      "version": "0.6.1",
+      "version": "0.8.0",
       "bin": {
         "phone-use": "bin/phone-use.cjs",
       },
       "dependencies": {
         "@anthropic-ai/sdk": "0.112.3",
         "@modelcontextprotocol/sdk": "1.30.0",
-        "@phone-use/sdk": "0.5.2",
+        "@phone-use/sdk": "0.7.0",
         "openai": "6.26.0",
         "sharp": "0.35.3",
         "zod": "4.4.3",
@@ -87,7 +87,7 @@
     },
     "packages/sdk": {
       "name": "@phone-use/sdk",
-      "version": "0.5.2",
+      "version": "0.7.0",
     },
   },
   "packages": {
