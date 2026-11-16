@@ -48,7 +48,8 @@ does not exist on Linux or Windows, and `doctor --mirror` says so rather than
 failing obscurely. Your options there:
 
 - **Cloud iPhones** — `phone-use create ios`, then `phone-use env <id>`. Works
-  from any OS, because the Macs are ours.
+  from any OS, because the Macs are ours. Cloud phones are on a
+  [waitlist](https://phoneuse.dev/waitlist), so this needs an approved account.
 - **Android** — no equivalent restriction; adb works locally anywhere.
 
 ## What works, and what cannot
