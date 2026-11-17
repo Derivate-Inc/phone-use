@@ -63,10 +63,10 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "0.112.3",
-    "@modelcontextprotocol/sdk": "1.30.0",
+    "@modelcontextprotocol/sdk": "1.32.2",
     "@phone-use/sdk": "0.7.1",
     "openai": "6.26.0",
-    "sharp": "0.35.3",
-    "zod": "4.4.3"
+    "sharp": "0.35.5",
+    "zod": "4.6.7"
   }
 }
