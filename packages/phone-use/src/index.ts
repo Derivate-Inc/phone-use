@@ -208,6 +208,10 @@ switch (command) {
     break;
   }
   case 'bench': {
+    if (rest.includes('--help') || rest.includes('-h')) {
+      console.log('usage: phone-use bench [--json | --format text|json|junit] [--output <file>]');
+      process.exit(0);
+    }
     const fi = rest.indexOf('--format');
     const format = fi === -1 ? (rest.includes('--json') ? 'json' : 'text') : rest[fi + 1];
     const oi = rest.indexOf('--output');
