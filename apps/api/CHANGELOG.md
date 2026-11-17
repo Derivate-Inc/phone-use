@@ -1,5 +1,12 @@
 # @phone-use/cloud
 
+## 0.1.1
+
+### Patch Changes
+
+- Updated dependencies [4fce319]
+  - @phone-use/sdk@0.7.1
+
 ## 0.1.0
 
 ### Minor Changes

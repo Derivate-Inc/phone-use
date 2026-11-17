@@ -1,6 +1,6 @@
 {
   "name": "phone-use",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "Natural-language phone control for AI agents — CLI, MCP server, and agent SDK",
   "type": "module",
   "license": "Apache-2.0",
@@ -64,7 +64,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "0.112.3",
     "@modelcontextprotocol/sdk": "1.30.0",
-    "@phone-use/sdk": "0.7.0",
+    "@phone-use/sdk": "0.7.1",
     "openai": "6.26.0",
     "sharp": "0.35.3",
     "zod": "4.4.3"

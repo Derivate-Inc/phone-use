@@ -7,7 +7,7 @@
  * deliberately not re-exported here.
  */
 /** The published package version (kept in sync with package.json by the release flow). */
-export const VERSION = '0.7.0';
+export const VERSION = '0.7.1';
 
 export {
   type Action,
