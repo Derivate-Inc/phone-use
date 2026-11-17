@@ -124,17 +124,20 @@ main() {
   # 2. phone-use
   say "Installing phone-use…"
   local bin_dir link log
-  bin_dir=$("$bun" pm bin -g)
-  link=$bin_dir/phone-use
+  # A fresh Bun installation has no global package.json until the first add.
+  bin_dir=$("$bun" pm bin -g 2>/dev/null) || bin_dir=''
+  link=${bin_dir:+$bin_dir/phone-use}
   # An earlier run without Node left its own script here (below). Bun only
   # replaces its own links, so clear it first or the update fails.
-  if [[ -f $link && ! -L $link ]] && grep -qF 'phoneuse.dev/install' "$link"; then
+  if [[ -n $link && -f $link && ! -L $link ]] && grep -qF 'phoneuse.dev/install' "$link"; then
     rm -f "$link"
   fi
   if ! log=$("$bun" add -g phone-use </dev/null 2>&1); then
     printf '%s\n' "$log" >&2
     fail "bun add -g phone-use failed."
   fi
+  bin_dir=$("$bun" pm bin -g)
+  link=$bin_dir/phone-use
   [[ -e $link ]] || fail "Bun finished, but $(tildify "$link") is missing."
 
   # The package's launcher starts with `#!/usr/bin/env node`. Without Node,
