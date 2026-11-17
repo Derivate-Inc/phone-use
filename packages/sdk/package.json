@@ -1,6 +1,6 @@
 {
   "name": "@phone-use/sdk",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Typed mobile-device SDK with its own iOS XCTest runner — Device, backends, errors, actions",
   "type": "module",
   "license": "Apache-2.0",
