@@ -1,5 +1,12 @@
 # phone-use
 
+## 0.8.2
+
+### Patch Changes
+
+- 694d152: Update three dependencies to versions with security fixes: `@modelcontextprotocol/sdk` 1.32.2, `sharp` 0.35.5 and `zod` 4.6.7. A fresh install no longer reports high-severity advisories.
+- bbf0104: Show benchmark help without operating a device, and fix the public installer for fresh Bun global directories.
+
 ## 0.8.1
 
 ### Patch Changes
