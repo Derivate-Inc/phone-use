@@ -1,6 +1,6 @@
 {
   "name": "phone-use",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "description": "Natural-language phone control for AI agents — CLI, MCP server, and agent SDK",
   "type": "module",
   "license": "Apache-2.0",

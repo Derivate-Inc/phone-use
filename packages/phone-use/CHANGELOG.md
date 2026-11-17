@@ -1,5 +1,11 @@
 # phone-use
 
+## 0.8.2
+
+### Patch Changes
+
+- bbf0104: Show benchmark help without operating a device, and fix the public installer for fresh Bun global directories.
+
 ## 0.8.1
 
 ### Patch Changes
